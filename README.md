@@ -1,22 +1,4 @@
 # avy-obs
-<!----- Conversion time: 5.432 seconds.
-
-
-Using this Markdown file:
-
-1. Cut and paste this output into your source file.
-2. See the notes and action items below regarding this conversion run.
-3. Check the rendered output (headings, lists, code blocks, tables) for proper
-   formatting and use a linkchecker before you publish this page.
-
-Conversion notes:
-
-* Docs to Markdown version 1.0β17
-* Fri Oct 25 2019 19:37:43 GMT-0700 (PDT)
-* Source doc: https://docs.google.com/open?id=1yoCh_EJqG6Xtmg9F22znic-jN5K1kac0F8QmzgmY3ZU
-* This document has images: check for >>>>>  gd2md-html alert:  inline image link in generated source and store images to your server.
------>
-
 
 <p style="color: red; font-weight: bold">>>>>>  gd2md-html alert:  ERRORs: 0; WARNINGs: 0; ALERTS: 6.</p>
 <ul style="color: red; font-weight: bold"><li>See top comment block for details on ERRORs and WARNINGs. <li>In the converted Markdown or HTML, search for inline alerts that start with >>>>>  gd2md-html alert:  for specific instances that need correction.</ul>
@@ -70,18 +52,18 @@ Team members:
 
 ## Background and Motivation
 
-As winter recreationists we have spent time pouring avalanche forecasts and observations to better understand the environment around us. Making informed decisions is a critical component for winter backcountry travelers and while published advisories are the first step in assessing risk, past observations are also relevant. The Utah Avalanche Center collects and makes available a dataset of avalanche observations from trained forecasters, and the public. These observations represent a sample of the real occurrences, but can be useful for exploratory analysis. The  dataset contains observations from as far back as 60 years ago, but starting around 2009 there is a more consistent number of observations. We are interested in visualizing how the distribution of these observations has changed over the last decade. Our project will enable users to explore how reported rates of avalanches with different characteristics have changed, potentially drawing attention to the increase in backcountry traffic and avalanche caused fatalities. We hope to bring this design to the Utah Avalanche Center and if they agree it is effective in helping users understand and explore the observations, we plan to collaborate with them to make it accessible through their website. 
+As winter recreationists we have spent time pouring avalanche forecasts and observations to better understand the environment around us. Making informed decisions is a critical component for winter backcountry travelers and while published advisories are the first step in assessing risk, past observations are also relevant. The Utah Avalanche Center collects and makes available a dataset of avalanche observations from trained forecasters, and the public. These observations represent a sample of the real occurrences, but can be useful for exploratory analysis. The  dataset contains observations from as far back as 60 years ago, but starting around 2009 there is a more consistent number of observations. We are interested in visualizing how the distribution of these observations has changed over the last decade. Our project will enable users to explore how reported rates of avalanches with different characteristics have changed, potentially drawing attention to the increase in backcountry traffic and avalanche caused fatalities. We hope to bring this design to the Utah Avalanche Center and if they agree it is effective in helping users understand and explore the observations, we plan to collaborate with them to make it accessible through their website.
 
 
 ## Project Objectives
 
-Our objective is to provide interested parties with an interactive visualization to explore the distribution of avalanche observation characteristics over time. We are aware of the presence of reporting bias, and will focus on faceting the observations into attribute sets, and displaying the normalized distributions of these attributes. Currently, interested users can export this data as CSV or explore it in a table format. We hope to make the data more accessible and useful by implementing mechanisms for exploration, while reinforcing the notion that observations are not a representative sample of all Utah avalanche phenomenon and absolute inference should not be made about the population distribution. 
+Our objective is to provide interested parties with an interactive visualization to explore the distribution of avalanche observation characteristics over time. We are aware of the presence of reporting bias, and will focus on faceting the observations into attribute sets, and displaying the normalized distributions of these attributes. Currently, interested users can export this data as CSV or explore it in a table format. We hope to make the data more accessible and useful by implementing mechanisms for exploration, while reinforcing the notion that observations are not a representative sample of all Utah avalanche phenomenon and absolute inference should not be made about the population distribution.
 
 Our visualization will have both user-driven interactive components as well as guided story-telling aspects to highlight points of interest. It will allow the user to explore the following characteristics of avalanche observations:
 
 
 
-*   Trigger / cause of avalanche 
+*   Trigger / cause of avalanche
 *   Discretized elevation of avalanche
 *   Discretized size of avalanche
 *   Aspect or cardinal facing of avalanche
@@ -95,7 +77,7 @@ Data of recorded avalanche observations is provided on the Utah Avalanche Center
 Below is a histogram of the observations from 01/01/2010 to now, it is binned by month. It can be seen that in the winter months there are around 100 observations on average and in the summer months there are none.
 
 
-    
+
 
 <p id="gdcalert1" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/Project-Proposal0.png). Store image on your image server and adjust path/filename if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert2">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
 
@@ -103,7 +85,7 @@ Below is a histogram of the observations from 01/01/2010 to now, it is binned by
 ![alt_text](images/Project-Proposal0.png "image_tooltip")
 
 
-The data recorded for each observation includes: 
+The data recorded for each observation includes:
 
 
     Date, Region, Place, Trigger, Depth, Width, Vertical, Aspect, Elevation, Coordinates, Weak Layer, Caught, Carried, Buried - Partly, Buried - Fully, Injured, Killed, Accident and Rescue Summary, Terrain Summary, Weather Conditions and History, and Comments.
@@ -113,7 +95,7 @@ Often some of these fields are left blank but they all include at least a date a
 Here is the distribution of observations among the different regions and shows why we decided to exclude a cartographic visualization:
 
 
-    
+
 
 <p id="gdcalert2" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/Project-Proposal1.png). Store image on your image server and adjust path/filename if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert3">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
 
@@ -124,7 +106,7 @@ Here is the distribution of observations among the different regions and shows w
 
 ### Data Processing
 
-Our dataset is already relatively ‘clean’ however we do expect to deal with some erroneos values as the dataset incorporates crowdsourced observations.We will also need to decide how to handle missing values for the characteristics of interest, these appear to be sparse so the best tactic may be to omit these instances but we will verify that.  We will be working with categorical attribute sets, as well as binned quantitative attributes.  We will pre-process our data using R or Python to minimize the overhead needed for our visualization. This process will be as modular as possible so that future incorporation with an updated dataset will be possible. 
+Our dataset is already relatively ‘clean’ however we do expect to deal with some erroneos values as the dataset incorporates crowdsourced observations.We will also need to decide how to handle missing values for the characteristics of interest, these appear to be sparse so the best tactic may be to omit these instances but we will verify that.  We will be working with categorical attribute sets, as well as binned quantitative attributes.  We will pre-process our data using R or Python to minimize the overhead needed for our visualization. This process will be as modular as possible so that future incorporation with an updated dataset will be possible.
 
 
 
@@ -170,15 +152,15 @@ Our visualization focuses on exploring the change over time of the avalanche cha
 
 
 
-*   Oct. 18 
+*   Oct. 18
     *   Team announcement completed
-*   Oct. 25 
+*   Oct. 25
     *    **Project Proposal** completed
-*   Nov. 1 
+*   Nov. 1
     *   Data cleaning completed (final csv) and Javascript data structures in place
     *   Overall HTML layout in place
     *   Process book: Overview and motivation, related work, questions
-*   Nov. 8 
+*   Nov. 8
     *   Area chart that appears on load
     *   Heat map
     *   All buttons, labels, and text on screen (even if not all functional)
@@ -192,7 +174,7 @@ Our visualization focuses on exploring the change over time of the avalanche cha
     *   Finalize code and design aesthetics
     *   Make project screen-cast video
     *   Process Book: Analysis
-*   Nov. 27 
+*   Nov. 27
     *   Host on website
     *   Finalize process book
     *   **Project Completed**
