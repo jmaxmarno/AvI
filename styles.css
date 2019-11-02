@@ -18,3 +18,8 @@
     display: inline-block;
     float: left;
 }
+
+rect {
+    fill: white;
+    stroke: black;
+}
