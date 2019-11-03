@@ -23,3 +23,15 @@ rect {
     fill: white;
     stroke: black;
 }
+
+rect.Small {
+    fill: green;
+}
+
+rect.Medium {
+    fill: yellow;
+}
+
+rect.Large {
+    fill:red;
+}
