@@ -103,21 +103,29 @@ def getJSONdata(monthDictTemplate, csvFile):
     avy_dict = {}
     with open(csvFile) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
-        line_count = 0
-        for row in csv_reader:
-            if line_count == 0:
-                print(f'Column names are {", ".join(row)}')
-            else:
-                row = fix_missing_values(row)
-                year = int(row[0].split("/")[-1])
-                month = int(row[0].split("/")[0])
-                if year not in avy_dict:
-                    avy_dict[year] = {}
-                if month not in avy_dict[year]:
-                    avy_dict[year][month] = copy.deepcopy(monthDictTemplate)
-                else:
-                    avy_dict[year][month] = updateMonthDict(avy_dict[year][month], row)
-            line_count += 1
+        rows = list(csv_reader)
+        end_year = int(rows[1][0].split("/")[-1])
+        end_month = int(rows[1][0].split("/")[0])
+        start_year =  int(rows[-1][0].split("/")[-1])
+        start_month =  int(rows[-1][0].split("/")[0])
+        # add month templates
+        for year in range(start_year, end_year+1):
+            avy_dict[year] = {}
+            start = 1
+            end = 12
+            if year == start_year:
+                start = start_month
+            elif year == end_year:
+                end = end_month
+            for month in range(start, end + 1):
+                avy_dict[year][month] = copy.deepcopy(monthDictTemplate)
+        # update months
+        for row in rows[1:]:
+            row = fix_missing_values(row)
+            year = int(row[0].split("/")[-1])
+            month = int(row[0].split("/")[0])
+            avy_dict[year][month] = updateMonthDict(avy_dict[year][month], row)
+    print(str(len(rows)-1) + " observations added to json")
     return avy_dict
 
 def updateMonthDict(monthDict, row):
@@ -175,7 +183,6 @@ def get_elevation(elevation):
         return 'unknown'
 
 def debug(avy_dict, test_category):
-    input(avy_dict)
     for key,value in avy_dict.items():
         for key2,value2 in value.items():
             print("Year: " + str(key) + ", Month: " + str(key2) + ", " + test_category+ ": " + str(avy_dict[key][key2][test_category]))
@@ -186,11 +193,11 @@ def main(csvFile):
     categoryNames, categorySets = getCategoriesandLabels(csvFile)
     monthDictTemplate = makeMonthDictTemplate(categorySets)
     avy_dict = getJSONdata(monthDictTemplate, csvFile)
-    debug(avy_dict, "elevation")
+    # debug(avy_dict, "size")
      # write to json
     json_name = csvFile[:-4] + ".json"
     with open(json_name, 'w') as json_file:
-        json.dump(avy_dict, json_file)
+        json.dump([avy_dict], json_file)
 
 if __name__== "__main__":
     csvFile = 'avalanches.csv'
