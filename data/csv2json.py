@@ -197,7 +197,7 @@ def main(csvFile):
      # write to json
     json_name = csvFile[:-4] + ".json"
     with open(json_name, 'w') as json_file:
-        json.dump([avy_dict], json_file)
+        json.dump(avy_dict, json_file)
 
 if __name__== "__main__":
     csvFile = 'avalanches.csv'
