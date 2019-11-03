@@ -2,9 +2,10 @@ class AreaChart{
     /**
      * Creates a Bubble plot Object
      */
-    constructor(allData, histData) {
-        this.allData = allData;
-        this.histData = histData;
+    constructor(data, histData) {
+        this.data = data;
+        this.histData = histData
+        console.log(histData)
 
         this.hist = {
             'width':  1200,
@@ -15,8 +16,8 @@ class AreaChart{
             'height': 300
         }
         this.createHistogram();
-        let areaData = this.getAreaData("size");
-        this.createAreaChart(areaData);
+        // let areaData = this.getAreaData("size");
+        // this.createAreaChart(areaData);
     };
 
 
@@ -31,20 +32,14 @@ class AreaChart{
         areaSVG.append("rect")
             .attr("width", this.area.width)
             .attr("height", this.area.height);
+        // bar scale
+        let barHeightScale =  d3.scaleLinear()
+            .domain([0, 1])
+            .range([0, this.area.height]);
+        //bars
         console.log(areaData)
-        let areaGroups = areaSVG.selectAll("g").data(areaData);
-        let enterArea = areaGroups.enter().append("g");
-        areaGroups.exit().remove();
-        areaGroups = enterArea.merge(areaGroups);
-        let rectWidth = this.area.width/areaData.length;
-        let areaRects = areaGroups.selectAll("rect")
-            .data((d,i) => this.getRectData(d,i))
-            .enter()
-            .append("rect");
-        areaRects.attr("width", rectWidth)
-            .attr("height", (d) => d.proportion*this.area.height)
-            .attr('x', (d,i) => d.index * 10)
-            .attr('class', (d) => d.name);
+        let series = d3.stack().keys(areaData.keys).areaData;
+        console.log(series)
     }
 
     createHistogram(){
@@ -71,43 +66,5 @@ class AreaChart{
             console.log("Year: " + d.year + " Month: " + d.month);
         });
     }
-    
 
-    drawAreaChart(data){
-
-    }
-
-    getAreaData(category){
-        console.log(category)
-        let areaData = []
-        for (var year in this.allData) {
-            if (this.allData.hasOwnProperty(year)) {  
-                for (let month =1; month <= 12; month++){
-                    if (month in this.allData[year]){
-                        console.log(category)
-                        areaData.push({'year': year,'month': month, 'count': this.allData[year][month]['total_count'], "categoryName": category, "categories" : this.allData[year][month][category]});
-                   }
-                    else{
-                        areaData.push({'year': year, 'month': month, 'count': 0,"categoryName": category, "categories": {}});
-                    }
-                }          
-            } 
-        }
-        areaData.splice(0,10); // removing first nine months because csv started in Nov2009 not Jan2009
-        areaData.splice(-2,2); // removing Nov 2019 and Dec 2019
-        return areaData
-    };
-
-    getRectData(instance, index){
-        let rectData = []
-        console.log(instance)
-        if (instance.count > 0){
-            for (let name in instance.categories) {
-                let proportion = instance.categories[name]/instance.count;
-                rectData.push({"name": name, "proportion": proportion, "index": index});
-            }
-        }
-        console.log(rectData)
-        return rectData
-    }
 }
