@@ -1,5 +1,5 @@
 
-const months = ['August', 'September', 'October', 'November', 'December', 'January', 'February', 'March', 'April', 'May', 'June', 'July']
+const months = ['AUG', 'SEPT', 'OCT', 'NOV', 'DEC', 'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL']
 function range(start, end){
   if(start === end) return [start];
   return [start, ...range(start+1, end)];
@@ -11,8 +11,8 @@ for(let y=0; y<years.length; y++)
         yearmonthvals.push({year: years[y], month: months[m], randval: Math.random()*100})
 
 const margin = {top:40, bottom:40, left:40, right:40};
-const width = 700 - margin.left - margin.right
-const height = 400 - margin.top - margin.bottom
+const width = 500 - margin.left - margin.right
+const height = 200 - margin.top - margin.bottom
 
 
 // Year/month grid class
@@ -63,7 +63,9 @@ class yeargrid {
   .attr('y', d=>yscale(d.year))
   .attr('width', xscale.bandwidth())
   .attr('height', yscale.bandwidth())
-  .style('fill', d=>gcolor(d.randval));
+  .style('fill', d=>gcolor(d.randval))
+
+  gridrects.append('svg:title').text('TEST')
 
   function withinbrush(brushcoords, xx, yy){
     let x0 = brushcoords[0][0];
