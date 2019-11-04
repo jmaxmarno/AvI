@@ -6,8 +6,8 @@ d3.json('data/avalanches.json').then( data => {
 
 	function getCountData(){
         let countData = []
-        for (var year in data) {
-            for (var month in data[year]) {
+        for (let year in data) {
+            for (let month in data[year]) {
                 countData.push({'year': year,'month': month, 'count': data[year][month]['total_count']});      
             } 
         }
@@ -16,5 +16,6 @@ d3.json('data/avalanches.json').then( data => {
 
     countData = getCountData();
     const areaChart = new AreaChart(data, countData);
+    // const yearGrid = new YearGrid(countData);
 
 });

@@ -20,18 +20,11 @@
 }
 
 rect {
+    stroke-width: 0;
+}
+
+rect.border {
     fill: white;
     stroke: black;
-}
-
-rect.Small {
-    fill: green;
-}
-
-rect.Medium {
-    fill: yellow;
-}
-
-rect.Large {
-    fill:red;
+    stroke-width: 2;
 }
