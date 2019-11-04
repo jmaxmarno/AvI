@@ -9,11 +9,10 @@ const yearmonthvals = []
 for(let y=0; y<years.length; y++)
     for(let m=0; m<months.length; m++)
         yearmonthvals.push({year: years[y], month: months[m], randval: Math.random()*100})
-console.log('yearmnonth', yearmonthvals[3])
 
 const margin = {top:40, bottom:40, left:40, right:40};
-const width = 600 - margin.left - margin.right
-const height = 600 - margin.top - margin.bottom
+const width = 700 - margin.left - margin.right
+const height = 400 - margin.top - margin.bottom
 
 
 // Year/month grid class
@@ -26,7 +25,6 @@ class yeargrid {
     this.drawgrid()
   }
 
-
   drawgrid(){
     console.log('drawgrid')
     const ygdiv = d3.select("#yeargriddiv")
@@ -36,8 +34,7 @@ class yeargrid {
     .attr('height', width+margin.top+margin.bottom)
     .append('g')
     .attr('transform', "translate(" + margin.left + "," + margin.top + ")");
-
-  console.log('grid', grid_g)
+  // console.log('grid', grid_g)
 
   const gcolor = d3.scaleLinear()
   .range(["black", "white"])
@@ -68,43 +65,46 @@ class yeargrid {
   .attr('height', yscale.bandwidth())
   .style('fill', d=>gcolor(d.randval));
 
-  function isbrushed(brushcoords, xx, yy){
+  function withinbrush(brushcoords, xx, yy){
     let x0 = brushcoords[0][0];
     let x1 = brushcoords[1][0];
     let y0 = brushcoords[0][1];
     let y1 = brushcoords[1][1];
     return x0 <= xx && xx<= x1 && y0<=yy && yy <= y1;
   }
+  function endbrush(){
+    console.log('brush ended')
+    if (d3.event.selection == null) {
+      gridrects.classed('brushed', false)
+    }
+    let brushedrects = grid_g.selectAll('.brushed')
 
-
-  function highlightBrushedCircles() {
-    console.log('highlightBrushedCircles')
-
+    console.log(brushedrects.data())
+    return brushedrects.data()
+  }
+  function highlightBrushed() {
+    gridrects.classed('brushed', false);
       if (d3.event.selection != null) {
-
           // revert circles to initial style
           gridrects.classed('brushed', false);
-
           var brush_coords = d3.brushSelection(this);
 
           // style brushed circles
           gridrects.filter(function (){
-                     let xx = d3.select(this).attr("x");
-                     let yy = d3.select(this).attr("y");
-                     return isbrushed(brush_coords, xx, yy);
+            // TODO: update brush to snap 'out' to selected rects
+                     let xx = +d3.select(this).attr("x")+(xscale.bandwidth()*0.5);
+                     let yy = +d3.select(this).attr("y")+(yscale.bandwidth()*0.5);
+                     return withinbrush(brush_coords, xx, yy);
                  })
-                 .attr("class", "brushed");
+                 .classed("brushed", true);
                   }
               }
-
-    var brush = d3.brush()
-                .on("brush", highlightBrushedCircles)
-                // .on("end", displayTable);
+  let brush  = d3.brush()
+  .on('brush', highlightBrushed)
+  .on('end', endbrush)
 
   grid_g.append("g")
      .call(brush);
-
-
   }
 }
 
