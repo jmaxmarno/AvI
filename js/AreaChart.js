@@ -9,15 +9,18 @@ class AreaChart{
 
         this.hist = {
             'width':  1200,
-            'height' : 300
+            'height' : 100
         };
         this.area = {
             'width': 1200,
             'height': 300
         }
 
+        this.attributes = ["trigger", "aspect", "size", "elevation"];
+
         this.createHistogram();
         this.createAreaChart("trigger");
+        this.createDropDown();
     };
 
     createHistogram(){
@@ -30,17 +33,25 @@ class AreaChart{
         histSVG.append("rect")
             .attr("width", this.hist.width)
             .attr("height", this.hist.height)
-            .attr("class", "border");
+            .attr("class", "border")
+        //scale
+        let xHistScale = d3.scaleLinear()
+            .domain([0, this.histData.length])
+            .range([0, this.hist.width]);
+        let maxCount = d3.max(this.histData, (d) => d.count);
+        let yHistScale = d3.scaleLinear()
+            .domain([0,maxCount])
+            .range([0, this.hist.height-10]);
         let histBars = histSVG.append("g").attr('id', 'histBars');
         let bars = histBars.selectAll("rect").data(this.histData);    //update
         let enterBars = bars.enter().append("rect");
         bars.exit().remove();
         bars = enterBars.merge(bars);
         let barWidth = this.hist.width/this.histData.length
-        bars.attr('x', (d,i) => i * barWidth)
-            .attr('y', (d) => that.hist.height-d.count)
+        bars.attr('x', (d,i) => xHistScale(i))
+            .attr('y', (d) => this.hist.height - yHistScale(d.count))
             .attr('width',barWidth)
-            .attr('height', (d) => d.count);
+            .attr('height', (d) => yHistScale(d.count));
         bars.on('click', function(d, i) {
             console.log("Year: " + d.year + " Month: " + d.month);
         });
@@ -48,42 +59,85 @@ class AreaChart{
 
     // Creates area chart layout
     createAreaChart(attribute){
-        let areaData = this.getAreaData(attribute);
-        let that = this;
         // svg
         let areaSVG = d3.select('#areachart').append('svg')
             .attr("width", this.area.width)
-            .attr("height", this.area.height);
+            .attr("height", this.area.height)
+            .attr("id", "areaSVG");
         //border
         areaSVG.append("rect")
             .attr("width", this.area.width)
             .attr("height", this.area.height)
             .attr("class", "border");
-        // bar scales
-        const xBarScale = d3.scaleLinear()
-            .domain([0, areaData.length])
-            .range([0, this.area.width]);
-        const yBarScale = d3.scaleLinear()
-            .domain([0,1])
-            .range([this.area.height,0]);
-        const color = d3.scaleOrdinal(d3.schemeCategory10);
 
         //define series
-        console.log(areaData)
-        const columns = Object.keys(areaData[0]);
-        let series = d3.stack().keys(columns.slice(1))(areaData);
-   
-        const rects = areaSVG.selectAll("g").data(series).enter()
+        let areaData = this.getAreaData(attribute);
+        let columns = Object.keys(areaData[0]);
+        let series = d3.stack().keys(columns.slice(1))(areaData); // don't include date
+
+        // bar scales
+        let xBarScale = d3.scaleLinear()
+            .domain([0, areaData.length])
+            .range([0, this.area.width]);
+        let yBarScale = d3.scaleLinear()
+            .domain([0,1])
+            .range([this.area.height,0]);
+        let color = d3.scaleOrdinal(d3.schemeCategory10);
+
+        // add bars
+        let catGroups = areaSVG.selectAll("g").data(series).enter()
             .append("g")
             .style("fill", d => color(d.key));
-          
-        rects.selectAll("rect")
+        catGroups.selectAll("rect")
             .data(d => d)
             .join("rect")
             .attr("x", (d, i) => xBarScale(i))
             .attr("y", d=> yBarScale(d[1]))
             .attr("height",d=> yBarScale(d[0]) - yBarScale(d[1]))
+            .attr("width", 10)
+            .on('click', function(d, i) {
+                console.log(d);
+            });;
+    }
+
+    updateAreaChart(attribute){
+        let areaSVG = d3.select("#areaSVG")
+
+        //define series
+        let areaData = this.getAreaData(attribute);
+        let columns = Object.keys(areaData[0]);
+        let series = d3.stack().keys(columns.slice(1))(areaData); // don't include date
+
+        // bar scales
+        let xBarScale = d3.scaleLinear()
+            .domain([0, areaData.length])
+            .range([0, this.area.width]);
+        let yBarScale = d3.scaleLinear()
+            .domain([0,1])
+            .range([this.area.height,0]);
+        let color = d3.scaleOrdinal(d3.schemeCategory10);
+
+        // add bars
+        let catGroups = areaSVG.selectAll("g").data(series);
+        let catEnter = catGroups.enter().append("g").style("fill", d => color(d.key));
+        catGroups.exit()
+            .style("opacity", 1)
+            .transition()
+            .duration(500)
+            .style("opacity", 0)
+            .remove();
+        catGroups = catEnter.merge(catGroups);
+        let catRects = catGroups.selectAll("rect").data(d => d);
+        let catRectsEnter = catRects.enter().append("rect");
+        catRects.exit().remove();
+        catRects = catRectsEnter.merge(catRects);
+        catRects.attr("x", (d, i) => xBarScale(i))
+            .attr("y", d=> yBarScale(d[1]))
+            .attr("height",d=> yBarScale(d[0]) - yBarScale(d[1]))
             .attr("width", 10);
+        catGroups.transition()
+            .duration(500)
+            .style("opacity", 1);
     }
 
     getAreaData(category){
@@ -116,5 +170,22 @@ class AreaChart{
         }
         return areaData;
     };
+
+
+    createDropDown(){
+        let that = this;
+
+        let section = d3.select('#dropdown').append('svg')
+            .attr("width",300)
+            .attr("height", 300);
+
+        let labels = section.selectAll("text").data(this.attributes).enter().append("text")
+            .text((d) => d)
+            .attr("x", 50)
+            .attr("y", (d,i) => (i*50)+20)
+            .on('click', function(d, i) {
+                that.updateAreaChart(d)
+            });
+    }
 
 }
