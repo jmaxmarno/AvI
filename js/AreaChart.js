@@ -17,11 +17,51 @@ class AreaChart{
         }
 
         this.attributes = ["trigger", "aspect", "size", "elevation"];
+        this.ordinal = ["size", "elevation"];
+
+        this.sortedLabels = {};
+        this.setSortedLabels();
 
         this.createHistogram();
         this.createAreaChart("trigger");
         this.createDropDown();
     };
+
+    setSortedLabels(){
+        // get a valid year and month
+        let year = Object.keys(this.data)[0];
+        let month = Object.keys(this.data[year])[0];
+        // nominal should be sorted by largest value
+        this.sortedLabels["trigger"] = this.sortCategory("trigger");
+        this.sortedLabels["aspect"] = this.sortCategory("aspect");
+        // ordinal should be in the right order already
+        this.sortedLabels["size"] = Object.keys(this.data[year][month]["size"]);
+        this.sortedLabels["elevation"] = Object.keys(this.data[year][month]["elevation"]);   
+    }
+
+    sortCategory(category){
+        let startYear = Object.keys(this.data)[0];
+        let startMonth = Object.keys(this.data[startYear])[0];
+        let labels = Object.keys(this.data[startYear][startMonth][category]);
+        let count_dict = {};
+        for (let index = 0; index < labels.length; index++){
+            count_dict[labels[index]] = 0;
+        }
+        // set
+        for (let year in this.data) {
+            for (let month in this.data[year]) {
+                for (let index = 0; index < labels.length; index++){
+                    count_dict[labels[index]] = count_dict[labels[index]] + this.data[year][month][category][labels[index]];
+                }
+            }
+        }
+        //sort
+        let sorted_labels = Object.keys(count_dict).sort(function(a, b) {
+          return count_dict[b] - count_dict[a];
+        })
+        return sorted_labels;
+
+    }
 
     createHistogram(){
         let that = this;
@@ -143,12 +183,14 @@ class AreaChart{
     getAreaData(category){
         let areaData = [];
         let allZeros = true;
+        let labels = this.sortedLabels[category];
         for (let year in this.data) {
             for (let month in this.data[year]) {
                 let date = month +'/'+ year;
                 let dict = {'date': date};
                 let count = this.data[year][month]["total_count"];
-                for (let label in  this.data[year][month][category]){
+                for (let index = 0; index < labels.length; index++){
+                    let label = labels[index];
                     let proportion;
                     if (count != 0){
                         proportion = this.data[year][month][category][label] / count;
@@ -168,8 +210,10 @@ class AreaChart{
                 areaData.push(dict) ;     
             } 
         }
+        // console.log(areaData)
         return areaData;
     };
+
 
 
     createDropDown(){
