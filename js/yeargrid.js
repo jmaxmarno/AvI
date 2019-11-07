@@ -10,9 +10,9 @@ for(let y=0; y<years.length; y++)
     for(let m=0; m<months.length; m++)
         yearmonthvals.push({year: years[y], month: months[m], randval: Math.random()*100})
 
-const margin = {top:40, bottom:40, left:40, right:40};
-const width = 500 - margin.left - margin.right
-const height = 200 - margin.top - margin.bottom
+const margin = {top:40, bottom:40, left:80, right:40};
+const width = 700 - margin.left - margin.right
+const height = 500 - margin.top - margin.bottom
 
 
 // Year/month grid class
@@ -27,7 +27,8 @@ class yeargrid {
 
   drawgrid(){
     console.log('drawgrid')
-    const ygdiv = d3.select("#yeargriddiv")
+    const ygdiv = d3.select("#yeargrid")
+    console.log('ygdiv', ygdiv)
     let grid_g = ygdiv.append("svg")
     .attr('id', 'gridsvg')
     .attr('width', width+margin.left+margin.right)
