@@ -36,7 +36,7 @@ Missing categories are marked "unknown"
 Missing human stats are assumed to be 0
 '''
 size_labels = ["Small", "Medium", "Large", "unknown"]
-elevation_labels = ["Above 11,000ft", "11,000ft - 10,000ft", "10,000ft - 9,000ft", "9,000ft - 8,000ft", "8,000ft - 7,000ft", "7,000ft - 6,000ft", 'Below 6,000ft', "unknown"]
+elevation_labels = ["Above 9,500ft", "8,000ft - 9,500ft", 'Below 8,000ft', "unknown"]
 human_stat_labels = ["caught", "carried", "buried_partly", "buried_fully", "injured", "killed"]
 
 def fix_missing_values(row):
@@ -165,20 +165,12 @@ def get_elevation(elevation):
     if elevation != 'unknown':
         if type(elevation) != 'int':
             elevation = int(elevation.replace(',', '').replace("'","").replace('"',''))
-        if elevation > 11000:
-            return "Above 11,000ft"
-        elif elevation > 10000:
-            return "11,000ft - 10,000ft"
-        elif elevation > 9000:
-            return "10,000ft - 9,000ft"
+        if elevation > 9500:
+            return "Above 9,500ft"
         elif elevation > 8000:
-            return "9,000ft - 8,000ft"
-        elif elevation > 7000:
-            return "8,000ft - 7,000ft"
-        elif elevation > 6000:
-            return "7,000ft - 6,000ft"
+            return "8,000ft - 9,500ft"
         else:
-            return 'Below 6,000ft'
+            return 'Below 8,000ft'
     else:
         return 'unknown'
 
@@ -202,6 +194,3 @@ def main(csvFile):
 if __name__== "__main__":
     csvFile = 'avalanches.csv'
     main(csvFile)
-   
-
-
