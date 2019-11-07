@@ -12,7 +12,7 @@ for(let y=0; y<years.length; y++)
 
 const margin = {top:40, bottom:40, left:80, right:40};
 const width = 700 - margin.left - margin.right
-const height = 500 - margin.top - margin.bottom
+const height = 400 - margin.top - margin.bottom
 
 
 // Year/month grid class
@@ -32,7 +32,7 @@ class yeargrid {
     let grid_g = ygdiv.append("svg")
     .attr('id', 'gridsvg')
     .attr('width', width+margin.left+margin.right)
-    .attr('height', width+margin.top+margin.bottom)
+    .attr('height', height+margin.top+margin.bottom)
     .append('g')
     .attr('transform', "translate(" + margin.left + "," + margin.top + ")");
   // console.log('grid', grid_g)
@@ -107,6 +107,8 @@ class yeargrid {
   .on('end', endbrush)
 
   grid_g.append("g")
+  .attr('width', width)
+  .attr('height', height)
      .call(brush);
   }
 }
