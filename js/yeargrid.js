@@ -1,5 +1,5 @@
 
-const months = ['AUG', 'SEPT', 'OCT', 'NOV', 'DEC', 'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL']
+const months = ['AUG', 'SEP', 'OCT', 'NOV', 'DEC', 'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL']
 function range(start, end){
   if(start === end) return [start];
   return [start, ...range(start+1, end)];
@@ -10,7 +10,7 @@ for(let y=0; y<years.length; y++)
     for(let m=0; m<months.length; m++)
         yearmonthvals.push({year: years[y], month: months[m], randval: Math.random()*100})
 
-const margin = {top:40, bottom:40, left:80, right:40};
+const margin = {top:40, bottom:40, left:60, right:40};
 const width = 700 - margin.left - margin.right
 const height = 400 - margin.top - margin.bottom
 
@@ -48,6 +48,12 @@ class yeargrid {
   const xaxgroup = grid_g.append("g")
   .attr('transform', 'translate(' + 0 + ',' + 0 + ')')
   .call(d3.axisTop(xscale))
+  .selectAll('text')
+  .classed('monthlabel', true)
+    .style('text-anchor', 'end')
+    .attr('dx', '2.5em')
+    .attr('dy', '.5em')
+    .attr('transform', 'rotate(-65)');
 
   const yscale = d3.scaleBand()
   .range([0, height])
