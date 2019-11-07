@@ -1,12 +1,12 @@
 #histogram {
-    width: 1500px; 
+    width: 1500px;
     height: 100px;
     display: inline-block;
     float: left;
 }
 
 #areachart {
-    width: 1500px; 
+    width: 1500px;
     height: 300px;
     display: inline-block;
     float: left;
