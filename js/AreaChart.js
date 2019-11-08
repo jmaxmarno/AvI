@@ -10,6 +10,8 @@ class AreaChart{
         this.updateAttribute = updateAttribute;
         this.updateTime = updateTime;
 
+        this.showSummer = true;
+
         this.hist = {
             'width':  1200,
             'height' : 100
@@ -139,6 +141,7 @@ class AreaChart{
             .range([this.area.height,0]);
         let color = d3.scaleOrdinal(d3.schemeCategory10);
         // add bars
+        let rectWidth = this.area.width/areaData.length;
         let catGroups = areaSVG.selectAll("g").data(series).enter()
             .append("g")
             .style("fill", d => color(d.key));
@@ -148,7 +151,7 @@ class AreaChart{
             .attr("x", (d, i) => xBarScale(i))
             .attr("y", d=> yBarScale(d[1]))
             .attr("height",d=> yBarScale(d[0]) - yBarScale(d[1]))
-            .attr("width", 10)
+            .attr("width", rectWidth)
             .on('click', function(d, i) {
                 console.log(d);
             });
@@ -178,6 +181,8 @@ class AreaChart{
             .range([this.area.height,0]);
         let color = d3.scaleOrdinal(d3.schemeCategory10);
         // add bars
+        let rectWidth = this.area.width/areaData.length;
+        console.log(rectWidth)
         let catGroups = areaSVG.selectAll("g").data(series);
         let catEnter = catGroups.enter().append("g").style("fill", d => color(d.key));
         catGroups.exit()
@@ -194,7 +199,7 @@ class AreaChart{
         catRects.attr("x", (d, i) => xBarScale(i))
             .attr("y", d=> yBarScale(d[1]))
             .attr("height",d=> yBarScale(d[0]) - yBarScale(d[1]))
-            .attr("width", 10);
+            .attr("width", rectWidth);
         catGroups.transition()
             .duration(500)
             .style("opacity", 1);
@@ -202,15 +207,15 @@ class AreaChart{
 
     // gets area chart data with specified category
     getAreaData(){
+        let that = this;
         let areaData = [];
-        let allZeros = true;
-        console.log(this.activeAttribute)
         let labels = this.sortedLabels[this.activeAttribute];
         for (let year in this.data) {
             for (let month in this.data[year]) {
                 let date = month +'/'+ year;
                 let dict = {'date': date};
                 let count = this.data[year][month]["total_count"];
+                let allZeros = true;
                 for (let index = 0; index < labels.length; index++){
                     let label = labels[index];
                     let proportion;
@@ -224,31 +229,18 @@ class AreaChart{
                     dict[label] = proportion;
                 }
                 if (allZeros == true){
-                    dict["none"] = 1
+                    if (that.showSummer == true){
+                        areaData.push(dict);
+                    }
                 }
                 else{
-                    dict["none"] = 0
-                }
-                areaData.push(dict) ;     
+                    areaData.push(dict);
+                }   
             } 
         }
         return areaData;
     };
 
-    // TODO creates drop down
-    // createDropDown(){
-    //     let section = d3.select('#dropdown').append('svg')
-    //         .attr("width",300)
-    //         .attr("height", 300);
-
-    //     let labels = section.selectAll("text").data(this.attributes).enter().append("text")
-    //         .text((d) => d)
-    //         .attr("x", 50)
-    //         .attr("y", (d,i) => (i*50)+20)
-    //         .on('click', function(d, i) {
-    //             that.updateAttribute(d)
-    //         });
-    // }
 
     drawDropDown(indicator) {
         let that = this;
