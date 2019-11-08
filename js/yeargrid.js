@@ -59,7 +59,12 @@ class yeargrid {
   .data(that.data)
   .enter().append('rect')
   .attr('x', d=>xscale(d.nmonth))
-  .attr('y', d=>yscale(d.year))
+  .attr('y', function(d){
+    // offset the month so that the row is a continuous stretch of time August-July
+    // // TODO: change so that uses the month index of the first month in the reordered months
+    return (d.month <8?yscale(d.year-1):yscale(d.year))
+  })
+
   .attr('width', xscale.bandwidth())
   .attr('height', yscale.bandwidth())
   .style('fill', d=>gcolor(d.count))
