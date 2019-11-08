@@ -3,6 +3,15 @@ Jadie Adams and Max Marno
 */
 
 d3.json('data/avalanches.json').then( data => {
+    this.activeAtrribute = "trigger";
+    this.activeTime = {
+        "startYear":2009,
+        "startMonth":10,
+        "endYear":2009,
+        "endMonth":10,
+    }
+
+    let that = this;
 
 	function getCountData(){
         let countData = []
@@ -14,14 +23,18 @@ d3.json('data/avalanches.json').then( data => {
         return countData;
     };
 
+    function updateAttribute(activeAtrribute){
+        that.activeAtrribute = activeAtrribute;
+        areaChart.setAttribute(activeAtrribute);
+    }
+
+    function updateTime(activeTime){
+        that.activeTime = activeTime;
+        areaChart.setTime(activeTime);
+    }
+
     countData = getCountData();
-    const areaChart = new AreaChart(data, countData);
+    const areaChart = new AreaChart(data, countData, this.activeAtrribute, this.activeTime, updateAttribute, updateTime);
     // const yearGrid = new YearGrid(countData);
 
 });
-
-function update(){
-	// update area chart ie with areachart.currentselectedattribute
-
-	// update story view, legend, anything else?? 
-}

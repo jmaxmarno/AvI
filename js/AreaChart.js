@@ -2,9 +2,14 @@ class AreaChart{
     /**
      * Creates a Bubble plot Object
      */
-    constructor(data, histData) {
+    constructor(data, histData, activeAttribute, activeTime, updateAttribute, updateTime) {
         this.data = data;
         this.histData = histData
+        this.activeAttribute = activeAttribute;
+        this.activeTime = activeTime;
+        this.updateAttribute = updateAttribute;
+        this.updateTime = updateTime;
+
         this.hist = {
             'width':  1200,
             'height' : 100
@@ -19,7 +24,7 @@ class AreaChart{
         this.setSortedLabels();
 
         this.createHistogram();
-        this.createAreaChart("trigger");
+        this.createAreaChart();
         this.createDropDown();
     };
 
@@ -98,8 +103,19 @@ class AreaChart{
         });
     }
 
+    setAttribute(attribute){
+        this.activeAttribute = attribute;
+        this.updateAreaChart();
+    }
+
+    setTime(activeTime){
+        this.activeTime = activeTime;
+        this.updateAreaChart();
+
+    }
+
     // Creates area chart layout
-    createAreaChart(attribute){
+    createAreaChart(){
         // svg
         let areaSVG = d3.select('#areachart').append('svg')
             .attr("width", this.area.width)
@@ -111,7 +127,7 @@ class AreaChart{
             .attr("height", this.area.height)
             .attr("class", "border");
         //define series
-        let areaData = this.getAreaData(attribute);
+        let areaData = this.getAreaData();
         let columns = Object.keys(areaData[0]);
         let series = d3.stack().keys(columns.slice(1))(areaData); // don't include date
         // bar scales
@@ -139,10 +155,10 @@ class AreaChart{
     }
 
     // updates area chart with given attribute data
-    updateAreaChart(attribute){
+    updateAreaChart(){
         let areaSVG = d3.select("#areaSVG")
         //define series
-        let areaData = this.getAreaData(attribute);
+        let areaData = this.getAreaData();
         let columns = Object.keys(areaData[0]);
         let series = d3.stack().keys(columns.slice(1))(areaData); // don't include date
         // bar scales
@@ -177,10 +193,11 @@ class AreaChart{
     }
 
     // gets area chart data with specified category
-    getAreaData(category){
+    getAreaData(){
         let areaData = [];
         let allZeros = true;
-        let labels = this.sortedLabels[category];
+        console.log(this.activeAttribute)
+        let labels = this.sortedLabels[this.activeAttribute];
         for (let year in this.data) {
             for (let month in this.data[year]) {
                 let date = month +'/'+ year;
@@ -190,7 +207,7 @@ class AreaChart{
                     let label = labels[index];
                     let proportion;
                     if (count != 0){
-                        proportion = this.data[year][month][category][label] / count;
+                        proportion = this.data[year][month][this.activeAttribute][label] / count;
                         allZeros = false;
                     }
                     else{
@@ -223,7 +240,7 @@ class AreaChart{
             .attr("x", 50)
             .attr("y", (d,i) => (i*50)+20)
             .on('click', function(d, i) {
-                that.updateAreaChart(d)
+                that.updateAttribute(d)
             });
     }
 
