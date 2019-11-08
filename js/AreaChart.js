@@ -10,7 +10,7 @@ class AreaChart{
         this.updateAttribute = updateAttribute;
         this.updateTime = updateTime;
 
-        this.showSummer = true;
+        this.showSummer = false;
 
         this.hist = {
             'width':  1200,
@@ -194,12 +194,20 @@ class AreaChart{
         catGroups = catEnter.merge(catGroups);
         let catRects = catGroups.selectAll("rect").data(d => d);
         let catRectsEnter = catRects.enter().append("rect");
-        catRects.exit().remove();
+        catRects.exit()
+            .style("opacity", 1)
+            .transition()
+            .duration(500)
+            .style("opacity", 0)
+            .remove();
         catRects = catRectsEnter.merge(catRects);
-        catRects.attr("x", (d, i) => xBarScale(i))
+        catRects.transition()
+            .duration(500)
+            .attr("x", (d, i) => xBarScale(i))
             .attr("y", d=> yBarScale(d[1]))
             .attr("height",d=> yBarScale(d[0]) - yBarScale(d[1]))
-            .attr("width", rectWidth);
+            .attr("width", rectWidth)
+            .style("opacity", 1);
         catGroups.transition()
             .duration(500)
             .style("opacity", 1);

@@ -4,12 +4,7 @@ Jadie Adams and Max Marno
 
 d3.json('data/avalanches.json').then( data => {
     this.activeAtrribute = "trigger";
-    this.activeTime = {
-        "startYear":2009,
-        "startMonth":10,
-        "endYear":2009,
-        "endMonth":10,
-    }
+    this.activeTime = {};
 
     let that = this;
 
