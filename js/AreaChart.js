@@ -25,7 +25,7 @@ class AreaChart{
 
         this.createHistogram();
         this.createAreaChart();
-        this.createDropDown();
+        this.drawDropDown();
     };
 
     // sets sorted label order
@@ -152,6 +152,14 @@ class AreaChart{
             .on('click', function(d, i) {
                 console.log(d);
             });
+        // set up for drop down
+        let dropdownWrap = d3.select('#dropdown').append('div').classed('dropdown-wrapper', true);
+        let aWrap = dropdownWrap.append('div').classed('dropdown-panel', true);
+        aWrap.append('div').classed('d-label', true)
+            .append('text')
+            .text('Attirbute');
+        aWrap.append('div').attr('id', 'dropdown_a').classed('dropdown', true).append('div').classed('dropdown-content', true)
+            .append('select');
     }
 
     // updates area chart with given attribute data
@@ -228,20 +236,51 @@ class AreaChart{
     };
 
     // TODO creates drop down
-    createDropDown(){
+    // createDropDown(){
+    //     let section = d3.select('#dropdown').append('svg')
+    //         .attr("width",300)
+    //         .attr("height", 300);
+
+    //     let labels = section.selectAll("text").data(this.attributes).enter().append("text")
+    //         .text((d) => d)
+    //         .attr("x", 50)
+    //         .attr("y", (d,i) => (i*50)+20)
+    //         .on('click', function(d, i) {
+    //             that.updateAttribute(d)
+    //         });
+    // }
+
+    drawDropDown(indicator) {
         let that = this;
-
-        let section = d3.select('#dropdown').append('svg')
-            .attr("width",300)
-            .attr("height", 300);
-
-        let labels = section.selectAll("text").data(this.attributes).enter().append("text")
-            .text((d) => d)
-            .attr("x", 50)
-            .attr("y", (d,i) => (i*50)+20)
-            .on('click', function(d, i) {
-                that.updateAttribute(d)
+        let dropDownWrapper = d3.select('.dropdown-wrapper');
+        let dropData = [];
+        // 
+        for (let index = 0; index < this.attributes.length; index++){
+            dropData.push({
+                indicator: this.attributes[index],
+                indicator_name: this.attributes[index]
             });
+        }
+        // drop down data
+        let drop = dropDownWrapper.select('#dropdown_a').select('.dropdown-content').select('select');
+        let options = drop.selectAll('option')
+            .data(dropData);
+        options.exit().remove();
+        let optionsEnter = options.enter()
+            .append('option')
+            .attr('value', (d, i) => d.indicator);
+        optionsEnter.append('text')
+            .text((d, i) => d.indicator_name);
+        options = optionsEnter.merge(options);
+
+        let selected = options.filter(d => d.indicator === indicator)
+            .attr('selected', true);
+
+        drop.on('change', function(d, i) {
+            let value = this.options[this.selectedIndex].value;
+            that.updateAttribute(value);
+        });
     }
+
 
 }
