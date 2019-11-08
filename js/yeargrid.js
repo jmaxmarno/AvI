@@ -1,34 +1,23 @@
 
-const months = ['AUG', 'SEP', 'OCT', 'NOV', 'DEC', 'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL']
-function range(start, end){
-  if(start === end) return [start];
-  return [start, ...range(start+1, end)];
-}
-const years = range(2009, 2019)
-const yearmonthvals = []
-for(let y=0; y<years.length; y++)
-    for(let m=0; m<months.length; m++)
-        yearmonthvals.push({year: years[y], month: months[m], randval: Math.random()*100})
-
-const margin = {top:40, bottom:40, left:60, right:40};
-const width = 700 - margin.left - margin.right
-const height = 400 - margin.top - margin.bottom
-
-
 // Year/month grid class
 class yeargrid {
-  constructor(data, xdata, ydata){
+  constructor(data, xdata, ydata, updateall){
     this.data = data;
     this.xdata = xdata
     this.ydata = ydata
+    this.updateall = updateall
 
     this.drawgrid()
   }
 
   drawgrid(){
+    let that=this
+    const margin = {top:40, bottom:40, left:60, right:40};
+    const width = 700 - margin.left - margin.right
+    const height = 400 - margin.top - margin.bottom
     console.log('drawgrid')
     const ygdiv = d3.select("#yeargrid")
-    console.log('ygdiv', ygdiv)
+    // console.log('ygdiv', ygdiv)
     let grid_g = ygdiv.append("svg")
     .attr('id', 'gridsvg')
     .attr('width', width+margin.left+margin.right)
@@ -36,14 +25,17 @@ class yeargrid {
     .append('g')
     .attr('transform', "translate(" + margin.left + "," + margin.top + ")");
   // console.log('grid', grid_g)
-
+  // const maxcount = Math.max(...that.data.map(d=>+d.nmonth))
+  // console.log('maxcount', maxcount)
   const gcolor = d3.scaleLinear()
   .range(["black", "white"])
-  .domain([1,100])
+  .domain([1,1000])
 
+  // Reorder months
+  let reMonths = ['AUG', 'SEP', 'OCT', 'NOV', 'DEC', 'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL']
   const xscale = d3.scaleBand()
   .range([0, width])
-  .domain(this.xdata)
+  .domain(reMonths)
   .padding(0.01)
   const xaxgroup = grid_g.append("g")
   .attr('transform', 'translate(' + 0 + ',' + 0 + ')')
@@ -64,13 +56,13 @@ class yeargrid {
   .call(d3.axisLeft(yscale))
 
   let gridrects = grid_g.selectAll('rect')
-  .data(yearmonthvals)
+  .data(that.data)
   .enter().append('rect')
-  .attr('x', d=>xscale(d.month))
+  .attr('x', d=>xscale(d.nmonth))
   .attr('y', d=>yscale(d.year))
   .attr('width', xscale.bandwidth())
   .attr('height', yscale.bandwidth())
-  .style('fill', d=>gcolor(d.randval))
+  .style('fill', d=>gcolor(d.count))
 
   gridrects.append('svg:title').text('TEST')
 
@@ -82,16 +74,36 @@ class yeargrid {
     return x0 <= xx && xx<= x1 && y0<=yy && yy <= y1;
   }
   function endbrush(){
+
     console.log('brush ended')
     if (d3.event.selection == null) {
       gridrects.classed('brushed', false)
     }
-    let brushedrects = grid_g.selectAll('.brushed')
+    let brushedrects = grid_g.selectAll('.brushed').data()
+// TODO: This is NOT clean...:
+    let years = []
+    for (var key in brushedrects){
+      console.log(brushedrects[key]['year'])
+      if (years.includes(brushedrects[key]['year'])){
+      }else{
+        years.push(brushedrects[key]['year'])
+      }
+    }
+    let datedata = years.map(function(y){
+      let monthss = brushedrects.filter(function(d){
+        return d.year == y
+      }).map(m=>m.nmonth)
+      // get the index of the months from the months array defined initially
+      return {year: y, months: monthss.map(mm=>that.xdata.indexOf(mm)+1)}
+    })
 
-    console.log(brushedrects.data())
-    return brushedrects.data()
+    console.log('years', years)
+    console.log(datedata)
+    that.updateall(datedata)
+    return brushedrects
   }
   function highlightBrushed() {
+
     gridrects.classed('brushed', false);
       if (d3.event.selection != null) {
           // revert circles to initial style
@@ -107,16 +119,15 @@ class yeargrid {
                  })
                  .classed("brushed", true);
                   }
-              }
+  }
   let brush  = d3.brush()
   .on('brush', highlightBrushed)
   .on('end', endbrush)
 
   grid_g.append("g")
+  .attr('id', 'brushg')
   .attr('width', width)
   .attr('height', height)
      .call(brush);
   }
 }
-
-let yg = new yeargrid('data', months, years)
