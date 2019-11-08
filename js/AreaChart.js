@@ -195,31 +195,24 @@ class AreaChart{
         console.log(rectWidth)
         let catGroups = areaSVG.selectAll("g").data(series);
         let catEnter = catGroups.enter().append("g").style("fill", d => color(d.key));
-        catGroups.exit()
-            .style("opacity", 1)
-            .transition()
-            .duration(500)
-            .style("opacity", 0)
-            .remove();
+        catGroups.exit().remove();
         catGroups = catEnter.merge(catGroups);
         let catRects = catGroups.selectAll("rect").data(d => d);
-        let catRectsEnter = catRects.enter().append("rect");
+        let catRectsEnter = catRects.enter().append("rect")
+            .attr("x", (d, i) => xBarScale(i))
+            .attr("width", rectWidth)
+            .style("opacity", 0);
         catRects.exit()
             .style("opacity", 1)
             .transition()
-            .duration(500)
+            .duration(1000)
             .style("opacity", 0)
             .remove();
         catRects = catRectsEnter.merge(catRects);
         catRects.transition()
             .duration(500)
-            .attr("x", (d, i) => xBarScale(i))
             .attr("y", d=> yBarScale(d[1]))
             .attr("height",d=> yBarScale(d[0]) - yBarScale(d[1]))
-            .attr("width", rectWidth)
-            .style("opacity", 1);
-        catGroups.transition()
-            .duration(500)
             .style("opacity", 1);
     }
 
