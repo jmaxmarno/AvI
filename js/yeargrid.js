@@ -1,21 +1,33 @@
 
 // Year/month grid class
 class yeargrid {
-  constructor(data, xdata, ydata, updateall){
-    this.data = data;
-    this.xdata = xdata
-    this.ydata = ydata
-    this.updateall = updateall
+  constructor(data, updateTime){
+    this.normmonths = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL','AUG', 'SEP', 'OCT', 'NOV', 'DEC']
+    this.years = range(2009, 2019)
+    this.data = data
+    this.updateTime = updateTime
 
     this.drawgrid()
+
+    function range(start, end){
+      if(start === end) return [start];
+      return [start, ...range(start+1, end)];
+    }
   }
 
   drawgrid(){
-    let that=this
+        let that=this
+    let yearmonthdata = that.data.map(function(d){
+      // use month labels
+      let nmonth = that.normmonths[+d.month-1]
+      d.nmonth = nmonth
+      return d
+    })
+
     const margin = {top:40, bottom:40, left:60, right:40};
     const width = 700 - margin.left - margin.right
     const height = 400 - margin.top - margin.bottom
-    console.log('drawgrid')
+
     const ygdiv = d3.select("#yeargrid")
     // console.log('ygdiv', ygdiv)
     let grid_g = ygdiv.append("svg")
@@ -24,12 +36,12 @@ class yeargrid {
     .attr('height', height+margin.top+margin.bottom)
     .append('g')
     .attr('transform', "translate(" + margin.left + "," + margin.top + ")");
-  // console.log('grid', grid_g)
-  // const maxcount = Math.max(...that.data.map(d=>+d.nmonth))
-  // console.log('maxcount', maxcount)
+
+  const maxcount = Math.max(...that.data.map(d=>+d.count))
+
   const gcolor = d3.scaleLinear()
   .range(["black", "white"])
-  .domain([1,1000])
+  .domain([1,maxcount])
 
   // Reorder months
   let reMonths = ['AUG', 'SEP', 'OCT', 'NOV', 'DEC', 'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL']
@@ -47,9 +59,10 @@ class yeargrid {
     .attr('dy', '.5em')
     .attr('transform', 'rotate(-65)');
 
+// TODO: make year labels show both years the row represents, not just the start
   const yscale = d3.scaleBand()
   .range([0, height])
-  .domain(this.ydata)
+  .domain(that.years)
   .padding(0.01)
   const yaxgroup = grid_g.append("g")
   .attr('transform', 'translate(' + 0 + ',' + 0 + ')')
@@ -88,7 +101,7 @@ class yeargrid {
 // TODO: This is NOT clean...:
     let years = []
     for (var key in brushedrects){
-      console.log(brushedrects[key]['year'])
+      // console.log(brushedrects[key]['year'])
       if (years.includes(brushedrects[key]['year'])){
       }else{
         years.push(brushedrects[key]['year'])
@@ -99,12 +112,10 @@ class yeargrid {
         return d.year == y
       }).map(m=>m.nmonth)
       // get the index of the months from the months array defined initially
-      return {year: y, months: monthss.map(mm=>that.xdata.indexOf(mm)+1)}
+      return {year: y, months: monthss.map(mm=>that.normmonths.indexOf(mm)+1)}
     })
-
-    console.log('years', years)
-    console.log(datedata)
-    that.updateall(datedata)
+    // TODO: trigger update time
+    console.log('brushed months', datedata)
     return brushedrects
   }
   function highlightBrushed() {
