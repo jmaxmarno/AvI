@@ -71,6 +71,16 @@ class AreaChart{
 
     // draws histogram of all data
     createHistogram(){
+        let data = this.histData
+        if (!this.showSummer){
+            let newData = [];
+            for (let index = 0; index < data.length; index ++){
+                if (data[index]["count"] > 0){
+                    newData.push(data[index]);
+                }
+            }
+            data = newData;
+        }
         let that = this;
         // svg
         let histSVG = d3.select('#histogram').append('svg')
@@ -83,7 +93,7 @@ class AreaChart{
             .attr("class", "border")
         // scale
         let xHistScale = d3.scaleLinear()
-            .domain([0, this.histData.length])
+            .domain([0, data.length])
             .range([0, this.hist.width]);
         let maxCount = d3.max(this.histData, (d) => d.count);
         let yHistScale = d3.scaleLinear()
@@ -91,11 +101,11 @@ class AreaChart{
             .range([0, this.hist.height-10]);
         // histogram bars
         let histBars = histSVG.append("g").attr('id', 'histBars');
-        let bars = histBars.selectAll("rect").data(this.histData);
+        let bars = histBars.selectAll("rect").data(data);
         let enterBars = bars.enter().append("rect");
         bars.exit().remove();
         bars = enterBars.merge(bars);
-        let barWidth = this.hist.width/this.histData.length
+        let barWidth = this.hist.width/data.length;
         bars.attr('x', (d,i) => xHistScale(i))
             .attr('y', (d) => this.hist.height - yHistScale(d.count))
             .attr('width',barWidth)
