@@ -40,7 +40,7 @@ class AreaChart{
         this.sortedLabels["aspect"] = this.sortCategory("aspect");
         // ordinal should be in the right order already
         this.sortedLabels["size"] = Object.keys(this.data[year][month]["size"]);
-        this.sortedLabels["elevation"] = Object.keys(this.data[year][month]["elevation"]);   
+        this.sortedLabels["elevation"] = Object.keys(this.data[year][month]["elevation"]);
     }
 
     // returns sorted list of category labels
@@ -246,18 +246,103 @@ class AreaChart{
                 }
                 else{
                     areaData.push(dict);
-                }   
-            } 
+                }
+            }
         }
         return areaData;
     };
+    widthscale(total, selection, width){
+      if(selection>total){
+        throw "Selection is greater than total!"
+      }
+      try{
+        let scalefactor = 0.50
+        let prop = selection/total
+        let newsel = prop+(1-prop)*scalefactor
+        let newout = 1-newsel
+        let selwidth = width*newsel/selection
+        let outwidth = width*newout/(total-selection)
+        console.log(selection, "/", total, " ", width, "__", selwidth, outwidth)
+        return [selwidth, outwidth]
+      }
+      catch{
+        console.error(e);
+      }
+    }
+    updaterectwidth(dateselection){
+      if(dateselection.length>0){
+        console.log('datesel',dateselection.length, dateselection)
+        let selyears = dateselection.map(d=>d.year)
+        let allbars = d3.select('#areaSVG').selectAll('rect').filter(d=>d)
+        let bbars=allbars.filter(function(d){
+          if (d){
+            let ddate = d.data.date.split("/")
+            let mmonth = ddate[0]
+            let yyear = ddate[1]
+            if(selyears.includes(yyear)){
+              let selmonths = dateselection.filter(d=>d.year==yyear).map(d=>d.month);
+              if(selmonths.includes(mmonth)){
+                return d
+              }
+            }
+          }
+      })
+
+      let totalbars = []
+      allbars.each(function(d, i){
+        let xx = d3.select(this).attr("x")
+        if(totalbars.includes(xx)){
+          // console.log(xx, 'alreaady in there')
+        }else{
+          totalbars.push(xx)
+        }
+      })
+
+      let selbars = []
+      bbars.each(function(d, i){
+        let xx = d3.select(this).attr("x")
+        if(selbars.includes(xx)){
+          // console.log(xx, 'alreaady in there')
+        }else{
+          selbars.push(xx)
+        }
+      })
+      // let selectedbars = Object.keys(bbars.data()).length
+      let newwidths = this.widthscale(totalbars.length, selbars.length, this.area.width)
+      
+        allbars.attr('width', newwidths[1])
+        bbars.attr('width', newwidths[0])
+
+
+
+      }else{
+
+        let allbars = d3.select('#areaSVG').selectAll('rect').filter(d=>d)
+        let totalbars = []
+        allbars.each(function(d, i){
+          let xx = d3.select(this).attr("x")
+          if(totalbars.includes(xx)){
+            // console.log(xx, 'alreaady in there')
+          }else{
+            totalbars.push(xx)
+          }
+        })
+        let rectWidth = this.area.width/totalbars.length
+        allbars.attr('width', rectWidth)
+
+      }
+
+
+    }
+      // get total, get selction counts
+      // set width attributes accordingly
 
 
     drawDropDown(indicator) {
         let that = this;
         let dropDownWrapper = d3.select('.dropdown-wrapper');
         let dropData = [];
-        // 
+        //
         for (let index = 0; index < this.attributes.length; index++){
             dropData.push({
                 indicator: this.attributes[index],

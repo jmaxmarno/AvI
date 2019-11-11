@@ -16,7 +16,7 @@ class yeargrid {
   }
 
   drawgrid(){
-        let that=this
+    let that=this
     let yearmonthdata = that.data.map(function(d){
       // use month labels
       let nmonth = that.normmonths[+d.month-1]
@@ -116,7 +116,9 @@ class yeargrid {
     })
     // TODO: trigger update time
     console.log('brushed months', datedata)
+    that.updateTime(brushedrects)
     return brushedrects
+
   }
   function highlightBrushed() {
 
