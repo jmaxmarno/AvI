@@ -135,7 +135,10 @@ class AreaChart{
             .attr('x', (d,i) => xHistScale(i))
             .attr('y', (d) => this.hist.height - yHistScale(d.count))
             .attr('width',barWidth)
-            .attr('height', (d) => yHistScale(d.count));
+            .attr('height', (d) => yHistScale(d.count))
+            .attr("class", function(d){
+                return "date"+String(d.month)+String(d.year);
+            });
         bar.append("text")
             .attr('x', (d,i) => xHistScale(i))
             .attr('y', -this.hist.buffer/2)
@@ -144,7 +147,25 @@ class AreaChart{
                 if (!that.showSummer && d.month == 3){ return d.year }
                 else{return ""}
             })
-            .attr("class", "yearLabel");   
+            .attr("class", "yearLabel");
+
+        bar.on("mouseover", function(d) {
+                var xPosition = parseFloat(d3.select(this).attr("x"));
+                var yPosition = parseFloat(d3.select(this).attr("y"));
+                plot.append("title") //Create the tooltip label
+                    .attr("id", "tooltip")
+                    .attr("x", xPosition)
+                    .attr("y", yPosition)
+                    .text(d.month + "/" + d.year + "\n" 
+                        + "Observation count: " + d.count);
+                // highlight
+                d3.selectAll(".date"+String(d.month)+String(d.year)).classed("highlightBar", true);
+            })
+            .on("mouseout", function() {//Remove the tooltip
+                d3.select("#tooltip").remove();
+                d3.selectAll(".highlightBar").classed("highlightBar", false);
+
+            });
 
     }
 
@@ -251,6 +272,9 @@ class AreaChart{
         catGroups.selectAll("rect")
             .data(d => d)
             .join("rect")
+            .attr("class", function(d){
+                return "date"+String(d.data.date).replace("/","");
+            })
             .attr("x", (d, i) => xBarScale(i))
             .attr("y", d=> yBarScale(d[1]))
             .attr("height",d=> yBarScale(d[0]) - yBarScale(d[1]))

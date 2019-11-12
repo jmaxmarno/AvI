@@ -143,3 +143,8 @@ div.dropdown-wrapper {
 #yHistAxis text {
     font-size: 12px;
 }
+
+rect.highlightBar {
+    stroke : LightBlue;
+    stroke-width : 4;
+}
