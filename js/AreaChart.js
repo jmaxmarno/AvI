@@ -280,14 +280,15 @@ class AreaChart{
             .attr("height",d=> yBarScale(d[0]) - yBarScale(d[1]))
             .attr("width", rectWidth)
             .on("mouseover", function(d) {
-                console.log(d);
+                let label = Object.keys(d.data).find(key => d.data[key] === Math.abs(d[0]-d[1]).toFixed(3));
+                let percent = (d.data[label]*100).toFixed(1)
                 var xPosition = parseFloat(d3.select(this).attr("x"));
                 var yPosition = parseFloat(d3.select(this).attr("y"));
                 plot.append("title") //Create the tooltip label
                     .attr("id", "tooltip")
                     .attr("x", xPosition)
                     .attr("y", yPosition)
-                    .text(d.data.date);
+                    .text(d.data.date + "\n" + label + ": " + percent + "%");
                 // highlight
                 d3.selectAll(".date"+String(d.data.date).replace("/","")).classed("highlightBar", true);
                 // d3.selectAll("rect");
@@ -383,7 +384,7 @@ class AreaChart{
                     let label = labels[index];
                     let proportion;
                     if (count != 0){
-                        proportion = this.data[year][month][this.activeAttribute][label] / count;
+                        proportion = (this.data[year][month][this.activeAttribute][label] / count).toFixed(3);
                         allZeros = false;
                     }
                     else{
