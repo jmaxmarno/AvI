@@ -30,6 +30,7 @@ class AreaChart{
         this.createHistogram();
         this.createAreaChart();
         this.drawDropDown();
+        this.checkBox();
     };
 
     // sets sorted label order
@@ -90,7 +91,6 @@ class AreaChart{
             .domain([0, data.length])
             .range([0, this.hist.width]);
         let maxCount = d3.max(this.histData, (d) => d.count);
-        console.log(maxCount)
         let yHistScale = d3.scaleLinear()
             .domain([0,maxCount])
             .range([0, this.hist.height-10]);
@@ -111,7 +111,7 @@ class AreaChart{
             .call(yAxis);
         d3.select("g#yHistAxis").select("path").remove(); // remove top tick
         // add plot
-        let plot = svg.append("g").attr("transform", "translate("+this.hist.buffer+","+this.hist.buffer+")")
+        let plot = svg.append("g").attr("transform", "translate("+this.hist.buffer+","+this.hist.buffer+")").attr("id", "histPlot");
         // border
         plot.append("rect")
             .attr("width", this.hist.width)
@@ -146,6 +146,65 @@ class AreaChart{
             })
             .attr("class", "yearLabel");   
 
+    }
+
+    updateHistogram(){
+        let that = this;
+        let data = this.histData;
+        if (!this.showSummer){
+            let newData = [];
+            for (let index = 0; index < data.length; index ++){
+                if (data[index]["count"] > 0){
+                    newData.push(data[index]);
+                }
+            }
+            data = newData;
+        }
+        let xHistScale = d3.scaleLinear()
+            .domain([0, data.length])
+            .range([0, this.hist.width]);
+        let maxCount = d3.max(this.histData, (d) => d.count);
+        let yHistScale = d3.scaleLinear()
+            .domain([0,maxCount])
+            .range([0, this.hist.height-10]);
+        let barWidth = this.hist.width/data.length;
+        let barGroups = d3.select("#histPlot").selectAll("g").data(data);
+        let barEnter = barGroups.enter().append("g");
+        barEnter.append("line");
+        barEnter.append("rect");
+        barEnter.append("text");
+        barGroups.exit().remove();
+        barGroups.select("line")
+            .transition()
+            .duration(500)
+            .attr('x1', (d,i) => xHistScale(i))
+            .attr('x2', (d,i) => xHistScale(i))
+            .attr('y1', 0)
+            .attr('y2', function(d){
+                if (d.month == 1){ return that.hist.height }
+                else{ return 0}
+            })
+            .attr("class", "yearLine");
+        barGroups.select("rect")
+            .transition()
+            .duration(500)
+            .attr('x', (d,i) => xHistScale(i))
+            .attr('y', (d) => this.hist.height - yHistScale(d.count))
+            .attr('width',barWidth)
+            .attr('height', (d) => yHistScale(d.count));
+        barGroups.select("text")
+            .transition()
+            .duration(500)
+            .attr('x', (d,i) => xHistScale(i))
+            .attr('y', -this.hist.buffer/2)
+            .text(function(d){
+                if (that.showSummer && d.month == 5){ return d.year }
+                if (!that.showSummer && d.month == 3){ return d.year }
+                else{return ""}
+            })
+            .attr("class", "yearLabel"); 
+       
+        barGroups = barEnter.merge(barGroups);
     }
 
     setAttribute(attribute){
@@ -207,6 +266,7 @@ class AreaChart{
             .text('Attirbute');
         aWrap.append('div').attr('id', 'dropdown_a').classed('dropdown', true).append('div').classed('dropdown-content', true)
             .append('select');
+        
     }
 
     // updates area chart with given attribute data
@@ -468,6 +528,25 @@ class AreaChart{
             let value = this.options[this.selectedIndex].value;
             that.updateAttribute(value);
         });
+    }
+
+    checkBox(){
+        let that = this;
+        // summer check box
+        d3.select("#summerCheckBox").on("change",update);
+            update();
+        function update(){
+            if(d3.select("#summerCheckBox").property("checked")){
+                that.showSummer = true;
+                that.updateHistogram(); 
+                that.updateAreaChart();        
+            }
+            else{
+                that.showSummer = false;
+                that.updateHistogram();
+                that.updateAreaChart();
+            }
+        }
     }
 
 
