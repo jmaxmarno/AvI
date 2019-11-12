@@ -163,11 +163,12 @@ class AreaChart{
     createAreaChart(){
         // svg
         let areaSVG = d3.select('#areachart').append('svg')
-            .attr("width", this.area.width)
-            .attr("height", this.area.height)
-            .attr("id", "areaSVG");
+            .attr("width", this.area.width + (2*this.area.buffer))
+            .attr("height", this.area.height + (2*this.area.buffer));
+        //plot
+        let plot = areaSVG.append("g").attr("transform", "translate("+this.area.buffer+","+this.area.buffer+")").attr("id", "areaPlot");
         //border
-        areaSVG.append("rect")
+        plot.append("rect")
             .attr("width", this.area.width)
             .attr("height", this.area.height)
             .attr("class", "border");
@@ -185,7 +186,7 @@ class AreaChart{
         let color = d3.scaleOrdinal(d3.schemeCategory10);
         // add bars
         let rectWidth = this.area.width/areaData.length;
-        let catGroups = areaSVG.selectAll("g").data(series).enter()
+        let catGroups = plot.selectAll("g").data(series).enter()
             .append("g")
             .style("fill", d => color(d.key));
         catGroups.selectAll("rect")
@@ -211,7 +212,7 @@ class AreaChart{
     // updates area chart with given attribute data
     updateAreaChart(){
       console.log('Update Area Chart')
-        let areaSVG = d3.select("#areaSVG")
+        let plot = d3.select("#areaPlot")
         //define series
         let areaData = this.getAreaData();
         let columns = Object.keys(areaData[0]);
@@ -229,7 +230,7 @@ class AreaChart{
         // add bars
         let rectWidth = this.area.width/areaData.length;
         // console.log(rectWidth)
-        let catGroups = areaSVG.selectAll("g").data(series);
+        let catGroups = plot.selectAll("g").data(series);
         let catEnter = catGroups.enter().append("g").style("fill", d => color(d.key));
         catGroups.exit().remove();
         catGroups = catEnter.merge(catGroups);
