@@ -149,7 +149,7 @@ class AreaChart{
             })
             .attr("class", "yearLabel");
 
-        bar.on("mouseover", function(d) {
+        bar.selectAll("rect").on("mouseover", function(d) {
                 var xPosition = parseFloat(d3.select(this).attr("x"));
                 var yPosition = parseFloat(d3.select(this).attr("y"));
                 plot.append("title") //Create the tooltip label
@@ -223,8 +223,7 @@ class AreaChart{
                 if (!that.showSummer && d.month == 3){ return d.year }
                 else{return ""}
             })
-            .attr("class", "yearLabel"); 
-       
+            .attr("class", "yearLabel");       
         barGroups = barEnter.merge(barGroups);
     }
 
@@ -256,6 +255,7 @@ class AreaChart{
         let areaData = this.getAreaData();
         let columns = Object.keys(areaData[0]);
         let series = d3.stack().keys(columns.slice(2))(areaData); // don't include date
+        console.log(series);
         // bar scales
         let xBarScale = d3.scaleLinear()
             .domain([0, areaData.length])
@@ -279,8 +279,23 @@ class AreaChart{
             .attr("y", d=> yBarScale(d[1]))
             .attr("height",d=> yBarScale(d[0]) - yBarScale(d[1]))
             .attr("width", rectWidth)
-            .on('click', function(d, i) {
+            .on("mouseover", function(d) {
                 console.log(d);
+                var xPosition = parseFloat(d3.select(this).attr("x"));
+                var yPosition = parseFloat(d3.select(this).attr("y"));
+                plot.append("title") //Create the tooltip label
+                    .attr("id", "tooltip")
+                    .attr("x", xPosition)
+                    .attr("y", yPosition)
+                    .text(d.data.date);
+                // highlight
+                d3.selectAll(".date"+String(d.data.date).replace("/","")).classed("highlightBar", true);
+                // d3.selectAll("rect");
+            })
+            .on("mouseout", function() {//Remove the tooltip
+                d3.select("#tooltip").remove();
+                d3.selectAll(".highlightBar").classed("highlightBar", false);
+
             });
         // set up for drop down
         let dropdownWrap = d3.select('#dropdown').append('div').classed('dropdown-wrapper', true);
