@@ -126,3 +126,16 @@ div.dropdown-wrapper {
 .same-as-selected {
     background-color: rgba(0, 0, 0, 0.1);
 }
+
+.yearLabel{
+    font-size: 20px;
+    font-weight: bold;
+    fill: LightBlue;
+
+}
+
+.yearLine{
+    stroke-width:2;
+    stroke: LightBlue;
+    stroke-dasharray:4;
+}

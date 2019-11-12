@@ -10,7 +10,7 @@ class AreaChart{
         this.updateAttribute = updateAttribute;
         // this.updateTime = updateTime;
 
-        this.showSummer = false;
+        this.showSummer = true;
 
         this.hist = {
             'width':  1200,
@@ -100,19 +100,33 @@ class AreaChart{
             .domain([0,maxCount])
             .range([0, this.hist.height-10]);
         // histogram bars
-        let histBars = histSVG.append("g").attr('id', 'histBars');
-        let bars = histBars.selectAll("rect").data(data);
-        let enterBars = bars.enter().append("rect");
-        bars.exit().remove();
-        bars = enterBars.merge(bars);
         let barWidth = this.hist.width/data.length;
-        bars.attr('x', (d,i) => xHistScale(i))
+        let bar = histSVG.selectAll("g")
+            .data(data)
+            .enter().append("g");
+        bar.append("line")
+            .attr('x1', (d,i) => xHistScale(i))
+            .attr('x2', (d,i) => xHistScale(i))
+            .attr('y1', 0)
+            .attr('y2', function(d){
+                if (d.month == 1){ return that.hist.height }
+                else{ return 0}
+            })
+            .attr("class", "yearLine");
+        bar.append("rect")
+            .attr('x', (d,i) => xHistScale(i))
             .attr('y', (d) => this.hist.height - yHistScale(d.count))
             .attr('width',barWidth)
             .attr('height', (d) => yHistScale(d.count));
-        bars.on('click', function(d, i) {
-            console.log("Year: " + d.year + " Month: " + d.month);
-        });
+        bar.append("text")
+            .attr('x', (d,i) => xHistScale(i))
+            .attr('y', 20)
+            .text(function(d){
+                if (that.showSummer && d.month == 5){ return d.year }
+                if (!that.showSummer && d.month == 3){ return d.year }
+                else{return ""}
+            })
+            .attr("class", "yearLabel");       
     }
 
     setAttribute(attribute){
