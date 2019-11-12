@@ -14,11 +14,13 @@ class AreaChart{
 
         this.hist = {
             'width':  1200,
-            'height' : 100
+            'height' : 100,
+            'buffer' : 30
         };
         this.area = {
             'width': 1200,
-            'height': 300
+            'height': 300,
+            'buffer': 30
         }
 
         this.attributes = ["trigger", "aspect", "size", "elevation"];
@@ -71,6 +73,7 @@ class AreaChart{
 
     // draws histogram of all data
     createHistogram(){
+        let axisBuffer = 30;
         let data = this.histData
         if (!this.showSummer){
             let newData = [];
@@ -82,26 +85,41 @@ class AreaChart{
             data = newData;
         }
         let that = this;
-        // svg
-        let histSVG = d3.select('#histogram').append('svg')
-            .attr("width", this.hist.width)
-            .attr("height", this.hist.height);
-        // border
-        histSVG.append("rect")
-            .attr("width", this.hist.width)
-            .attr("height", this.hist.height)
-            .attr("class", "border")
         // scale
         let xHistScale = d3.scaleLinear()
             .domain([0, data.length])
             .range([0, this.hist.width]);
         let maxCount = d3.max(this.histData, (d) => d.count);
+        console.log(maxCount)
         let yHistScale = d3.scaleLinear()
             .domain([0,maxCount])
             .range([0, this.hist.height-10]);
+        let yAxisScale = d3.scaleLinear()
+            .domain([maxCount,0])
+            .range([10, this.hist.height]);
+        // svg
+         let svg = d3.select('#histogram').append('svg')
+            .attr("width", this.hist.width+(2*this.hist.buffer))
+            .attr("height", this.hist.height+(2*this.hist.buffer));
+        // axis
+        let yAxis = d3.axisLeft();
+        yAxis.scale(yAxisScale)
+            .ticks(3);
+        svg.append("g")
+            .attr("id","yHistAxis")
+            .attr("transform", "translate("+this.hist.buffer+","+ this.hist.buffer+")") 
+            .call(yAxis);
+        d3.select("g#yHistAxis").select("path").remove(); // remove top tick
+        // add plot
+        let plot = svg.append("g").attr("transform", "translate("+this.hist.buffer+","+this.hist.buffer+")")
+        // border
+        plot.append("rect")
+            .attr("width", this.hist.width)
+            .attr("height", this.hist.height)
+            .attr("class", "border")
         // histogram bars
         let barWidth = this.hist.width/data.length;
-        let bar = histSVG.selectAll("g")
+        let bar = plot.selectAll("g")
             .data(data)
             .enter().append("g");
         bar.append("line")
@@ -120,13 +138,14 @@ class AreaChart{
             .attr('height', (d) => yHistScale(d.count));
         bar.append("text")
             .attr('x', (d,i) => xHistScale(i))
-            .attr('y', 20)
+            .attr('y', -this.hist.buffer/2)
             .text(function(d){
                 if (that.showSummer && d.month == 5){ return d.year }
                 if (!that.showSummer && d.month == 3){ return d.year }
                 else{return ""}
             })
-            .attr("class", "yearLabel");       
+            .attr("class", "yearLabel");   
+
     }
 
     setAttribute(attribute){

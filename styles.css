@@ -139,3 +139,7 @@ div.dropdown-wrapper {
     stroke: LightBlue;
     stroke-dasharray:4;
 }
+
+#yHistAxis text {
+    font-size: 12px;
+}
