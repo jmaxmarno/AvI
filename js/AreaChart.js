@@ -233,6 +233,7 @@ class AreaChart{
         let activeyears = [];
         // Date range stuff
         if(this.activeTime.length){
+          console.log('activetime', this.activeTime)
           activeyears = this.activeTime.map(d=>d.year)
           activemonthscount = this.activeTime.map(d=>d.months.length).reduce((a,b)=> a+b, 0)
           console.log('selectedyears', activeyears, activemonthscount)
@@ -267,7 +268,7 @@ class AreaChart{
                 }
             }
         }
-        console.log(areaData)
+        console.log('areaData',areaData)
         let total = areaData.length
         let widths = this.widthscale(total, activemonthscount, this.area.width)
 
@@ -308,7 +309,7 @@ class AreaChart{
         let newout = 1-newsel
         let selwidth = width*newsel/selection
         let outwidth = width*newout/(total-selection)
-        console.log(selection, "/", total, " ", width, "__", selwidth, outwidth)
+        console.log('widths', selection, " / ", total, "__width", width, "__sel, out", selwidth, outwidth)
         return [selwidth, outwidth]
       }
       catch{

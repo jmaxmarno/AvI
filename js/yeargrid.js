@@ -6,6 +6,7 @@ class yeargrid {
     this.years = range(2009, 2019)
     this.data = data
     this.updateTime = updateTime
+    this.showSummer = false
 
     this.drawgrid()
 
@@ -92,12 +93,21 @@ class yeargrid {
     return x0 <= xx && xx<= x1 && y0<=yy && yy <= y1;
   }
   function endbrush(){
-
     // console.log('brush ended')
     if (d3.event.selection == null) {
       gridrects.classed('brushed', false)
     }
-    let brushedrects = grid_g.selectAll('.brushed').data()
+    // summer months, or not
+    let brushedrects;
+    if (this.showSummer==true){
+      brushedrects = grid_g.selectAll('.brushed').data()
+    }else{
+      brushedrects = grid_g.selectAll('.brushed').filter(function(b){
+        // console.log('brushed rect', b, 'bcount', b.count)
+        return b.count>0
+      }).data()
+    }
+
 // TODO: This is NOT clean...:
     let years = []
     for (var key in brushedrects){
@@ -112,6 +122,7 @@ class yeargrid {
         return d.year == y
       }).map(m=>m.nmonth)
       // get the index of the months from the months array defined initially
+      console.log(y)
       return {year: y, months: monthss.map(mm=>that.normmonths.indexOf(mm)+1)}
     })
     // TODO: trigger update time
