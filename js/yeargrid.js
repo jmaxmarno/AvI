@@ -93,7 +93,7 @@ class yeargrid {
   }
   function endbrush(){
 
-    console.log('brush ended')
+    // console.log('brush ended')
     if (d3.event.selection == null) {
       gridrects.classed('brushed', false)
     }
@@ -115,8 +115,8 @@ class yeargrid {
       return {year: y, months: monthss.map(mm=>that.normmonths.indexOf(mm)+1)}
     })
     // TODO: trigger update time
-    console.log('brushed months', datedata)
-    that.updateTime(brushedrects)
+    // console.log('brushed months', datedata)
+    that.updateTime(datedata)
     return brushedrects
 
   }

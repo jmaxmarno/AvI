@@ -8,7 +8,7 @@ class AreaChart{
         this.activeAttribute = activeAttribute;
         this.activeTime = activeTime;
         this.updateAttribute = updateAttribute;
-        this.updateTime = updateTime;
+        // this.updateTime = updateTime;
 
         this.showSummer = false;
 
@@ -141,7 +141,7 @@ class AreaChart{
         //define series
         let areaData = this.getAreaData();
         let columns = Object.keys(areaData[0]);
-        let series = d3.stack().keys(columns.slice(1))(areaData); // don't include date
+        let series = d3.stack().keys(columns.slice(2))(areaData); // don't include date
         // bar scales
         let xBarScale = d3.scaleLinear()
             .domain([0, areaData.length])
@@ -177,11 +177,14 @@ class AreaChart{
 
     // updates area chart with given attribute data
     updateAreaChart(){
+      console.log('Update Area Chart')
         let areaSVG = d3.select("#areaSVG")
         //define series
         let areaData = this.getAreaData();
         let columns = Object.keys(areaData[0]);
-        let series = d3.stack().keys(columns.slice(1))(areaData); // don't include date
+        // console.log('columns', columns.slice(2))
+        let series = d3.stack().keys(columns.slice(2))(areaData); // don't include date or dimensions
+        // console.log('series', series)
         // bar scales
         let xBarScale = d3.scaleLinear()
             .domain([0, areaData.length])
@@ -192,15 +195,17 @@ class AreaChart{
         let color = d3.scaleOrdinal(d3.schemeCategory10);
         // add bars
         let rectWidth = this.area.width/areaData.length;
-        console.log(rectWidth)
+        // console.log(rectWidth)
         let catGroups = areaSVG.selectAll("g").data(series);
         let catEnter = catGroups.enter().append("g").style("fill", d => color(d.key));
         catGroups.exit().remove();
         catGroups = catEnter.merge(catGroups);
         let catRects = catGroups.selectAll("rect").data(d => d);
         let catRectsEnter = catRects.enter().append("rect")
-            .attr("x", (d, i) => xBarScale(i))
-            .attr("width", rectWidth)
+            // .attr("x", (d, i) => xBarScale(i))
+            .attr("x", d=>d.data.dims.xval)
+            // .attr("width", rectWidth)
+            .attr("width", d=>d.data.dims.width)
             .style("opacity", 0);
         catRects.exit()
             .style("opacity", 1)
@@ -211,6 +216,9 @@ class AreaChart{
         catRects = catRectsEnter.merge(catRects);
         catRects.transition()
             .duration(500)
+            .attr("x", d=>d.data.dims.xval)
+            // .attr("width", rectWidth)
+            .attr("width", d=>d.data.dims.width)
             .attr("y", d=> yBarScale(d[1]))
             .attr("height",d=> yBarScale(d[0]) - yBarScale(d[1]))
             .style("opacity", 1);
@@ -221,10 +229,20 @@ class AreaChart{
         let that = this;
         let areaData = [];
         let labels = this.sortedLabels[this.activeAttribute];
+        let activemonthscount = 0;
+        let activeyears = [];
+        // Date range stuff
+        if(this.activeTime.length){
+          activeyears = this.activeTime.map(d=>d.year)
+          activemonthscount = this.activeTime.map(d=>d.months.length).reduce((a,b)=> a+b, 0)
+          console.log('selectedyears', activeyears, activemonthscount)
+        }
+
         for (let year in this.data) {
             for (let month in this.data[year]) {
                 let date = month +'/'+ year;
                 let dict = {'date': date};
+                dict.dims = {};
                 let count = this.data[year][month]["total_count"];
                 let allZeros = true;
                 for (let index = 0; index < labels.length; index++){
@@ -249,11 +267,39 @@ class AreaChart{
                 }
             }
         }
-        return areaData;
+        console.log(areaData)
+        let total = areaData.length
+        let widths = this.widthscale(total, activemonthscount, this.area.width)
+
+        let dated = areaData.map(function(dd, i){
+          let ddate = dd.date.split("/")
+          let mmonth = ddate[0]
+          let yyear = ddate[1]
+          if(activeyears.includes(yyear)){
+            let selmonths = that.activeTime.filter(d=>d.year==yyear)[0].months
+            if(selmonths.includes(parseInt(mmonth))){
+              dd.dims.width = widths[0]
+            }else{
+              dd.dims.width = widths[1]
+            }
+          }else{
+            dd.dims.width = widths[1]
+          }
+          return dd
+        })
+        let widthmap = dated.map(d=>d.dims.width)
+        let withx = dated.map(function(d, i){
+          d.dims.xval = widthmap.slice(0, i).reduce((a,b)=>a+b,0)
+          return d
+        })
+        return withx;
     };
     widthscale(total, selection, width){
       if(selection>total){
         throw "Selection is greater than total!"
+      }else if (selection==0) {
+        let w = width/total
+        return [w,w]
       }
       try{
         let scalefactor = 0.50
@@ -269,74 +315,93 @@ class AreaChart{
         console.error(e);
       }
     }
-    updaterectwidth(dateselection){
-      if(dateselection.length>0){
-        console.log('datesel',dateselection.length, dateselection)
-        let selyears = dateselection.map(d=>d.year)
-        let allbars = d3.select('#areaSVG').selectAll('rect').filter(d=>d)
-        let bbars=allbars.filter(function(d){
-          if (d){
-            let ddate = d.data.date.split("/")
-            let mmonth = ddate[0]
-            let yyear = ddate[1]
-            if(selyears.includes(yyear)){
-              let selmonths = dateselection.filter(d=>d.year==yyear).map(d=>d.month);
-              if(selmonths.includes(mmonth)){
-                return d
-              }
-            }
-          }
-      })
-
-      let totalbars = []
-      allbars.each(function(d, i){
-        let xx = d3.select(this).attr("x")
-        if(totalbars.includes(xx)){
-          // console.log(xx, 'alreaady in there')
-        }else{
-          totalbars.push(xx)
-        }
-      })
-
-      let selbars = []
-      bbars.each(function(d, i){
-        let xx = d3.select(this).attr("x")
-        if(selbars.includes(xx)){
-          // console.log(xx, 'alreaady in there')
-        }else{
-          selbars.push(xx)
-        }
-      })
-      // let selectedbars = Object.keys(bbars.data()).length
-      let newwidths = this.widthscale(totalbars.length, selbars.length, this.area.width)
-      
-        allbars.attr('width', newwidths[1])
-        bbars.attr('width', newwidths[0])
-
-
-
-      }else{
-
-        let allbars = d3.select('#areaSVG').selectAll('rect').filter(d=>d)
-        let totalbars = []
-        allbars.each(function(d, i){
-          let xx = d3.select(this).attr("x")
-          if(totalbars.includes(xx)){
-            // console.log(xx, 'alreaady in there')
-          }else{
-            totalbars.push(xx)
-          }
-        })
-        let rectWidth = this.area.width/totalbars.length
-        allbars.attr('width', rectWidth)
-
-      }
-
-
-    }
-      // get total, get selction counts
-      // set width attributes accordingly
-
+    // updaterectwidth(dateselection){
+    //   let that=this;
+    //   if(dateselection.length>0){
+    //     console.log('datesel',dateselection.length, dateselection)
+    //     let selyears = dateselection.map(d=>d.year)
+    //     let allbars = d3.select('#areaSVG').selectAll('rect').filter(d=>d)
+    //     let bbars=allbars.filter(function(d){
+    //       if (d){
+    //         let ddate = d.data.date.split("/")
+    //         let mmonth = ddate[0]
+    //         let yyear = ddate[1]
+    //         if(selyears.includes(yyear)){
+    //           let selmonths = dateselection.filter(d=>d.year==yyear).map(d=>d.month);
+    //           if(selmonths.includes(mmonth)){
+    //             return d
+    //           }
+    //         }
+    //       }
+    //   })
+    //
+    //   let totalbars = []
+    //   allbars.each(function(d, i){
+    //     let xx = d3.select(this).attr("x")
+    //     if(totalbars.includes(xx)){
+    //       // console.log(xx, 'alreaady in there')
+    //     }else{
+    //       totalbars.push(xx)
+    //     }
+    //   })
+    //
+    //   let selbars = []
+    //   bbars.each(function(d, i){
+    //     let xx = d3.select(this).attr("x")
+    //     if(selbars.includes(xx)){
+    //       // console.log(xx, 'alreaady in there')
+    //     }else{
+    //       selbars.push(xx)
+    //     }
+    //   })
+    //   // let selectedbars = Object.keys(bbars.data()).length
+    //   let newwidths = this.widthscale(totalbars.length, selbars.length, this.area.width)
+    //
+    //     allbars.attr('width', newwidths[1])
+    //     bbars.attr('width', newwidths[0])
+    //
+    //   // console.log('totalbars', totalbars)
+    //   // console.log('selected bars', selbars)
+    //
+    //   function xval(inx){
+    //     let xcount = totalbars.filter(d=> d<inx).map(function(d){
+    //       // console.log('xbarval', d)
+    //       //   console.log('d less than inx')
+    //         if(selbars.includes(String(d))){
+    //           // console.log('d IS in selbars')
+    //           return newwidths[0]
+    //         }else{
+    //           // console.log('d not in selbars')
+    //           return newwidths[1]
+    //         }
+    //     })
+    //     return xcount.reduce((a,b)=> a+b, 0)
+    //   }
+    //   // allbars.each(function(d, i){
+    //   //   let currx = d3.select(this).attr("x")
+    //   //   d3.select(this).attr("x", d=>xval(currx))
+    //   // })
+    //   console.log('xval:200', xval(200))
+    //
+    //
+    //   }else{
+    //     let allbars = d3.select('#areaSVG').selectAll('rect').filter(d=>d)
+    //     let totalbars = []
+    //     allbars.each(function(d, i){
+    //       let xx = d3.select(this).attr("x")
+    //       if(totalbars.includes(xx)){
+    //         // console.log(xx, 'alreaady in there')
+    //       }else{
+    //         totalbars.push(xx)
+    //       }
+    //     })
+    //     let rectWidth = that.area.width/totalbars.length
+    //     allbars.attr('width', rectWidth)
+    //     allbars.attr('x', function(d,i){
+    //       return i*that.area.width/totalbars.length
+    //     })
+    //   }
+    // }
 
     drawDropDown(indicator) {
         let that = this;

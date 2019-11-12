@@ -25,7 +25,6 @@ d3.json('data/avalanches.json').then( data => {
 
     function updateTime(activeTime){
       console.log('updatetime from script.js')
-      areaChart.updaterectwidth(activeTime)
         that.activeTime = activeTime;
         areaChart.setTime(activeTime);
     }
