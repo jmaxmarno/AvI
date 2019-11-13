@@ -212,7 +212,10 @@ class AreaChart{
             .attr('x', (d,i) => xHistScale(i))
             .attr('y', (d) => this.hist.height - yHistScale(d.count))
             .attr('width',barWidth)
-            .attr('height', (d) => yHistScale(d.count));
+            .attr('height', (d) => yHistScale(d.count))
+            .attr("class", function(d){
+                return "date"+String(d.month)+String(d.year);
+            });;
         barGroups.select("text")
             .transition()
             .duration(500)
@@ -223,8 +226,25 @@ class AreaChart{
                 if (!that.showSummer && d.month == 3){ return d.year }
                 else{return ""}
             })
-            .attr("class", "yearLabel");       
+            .attr("class", "yearLabel");   
         barGroups = barEnter.merge(barGroups);
+        d3.select(".histBars").on("mouseover", function(d) {
+                var xPosition = parseFloat(d3.select(this).attr("x"));
+                var yPosition = parseFloat(d3.select(this).attr("y"));
+                d3.select("#histPlot").append("title") //Create the tooltip label
+                    .attr("id", "tooltip")
+                    .attr("x", xPosition)
+                    .attr("y", yPosition)
+                    .text(d.month + "/" + d.year + "\n" 
+                        + "Observation count: " + d.count);
+                // highlight
+                d3.selectAll(".date"+String(d.month)+String(d.year)).classed("highlightBar", true);
+            })
+            .on("mouseout", function() {//Remove the tooltip
+                d3.select("#tooltip").remove();
+                d3.selectAll(".highlightBar").classed("highlightBar", false);
+
+            });
     }
 
     setAttribute(attribute){
@@ -355,7 +375,30 @@ class AreaChart{
             .attr("width", d=>d.data.dims.width)
             .attr("y", d=> yBarScale(d[1]))
             .attr("height",d=> yBarScale(d[0]) - yBarScale(d[1]))
+            .attr("class", function(d){
+                return "date"+String(d.data.date).replace("/","");
+            })
             .style("opacity", 1);
+
+        catRects.on("mouseover", function(d) {
+                let label = Object.keys(d.data).find(key => d.data[key] === Math.abs(d[0]-d[1]).toFixed(3));
+                let percent = (d.data[label]*100).toFixed(1)
+                var xPosition = parseFloat(d3.select(this).attr("x"));
+                var yPosition = parseFloat(d3.select(this).attr("y"));
+                plot.append("title") //Create the tooltip label
+                    .attr("id", "tooltip")
+                    .attr("x", xPosition)
+                    .attr("y", yPosition)
+                    .text(d.data.date + "\n" + label + ": " + percent + "%");
+                // highlight
+                d3.selectAll(".date"+String(d.data.date).replace("/","")).classed("highlightBar", true);
+                // d3.selectAll("rect");
+            })
+            .on("mouseout", function() {//Remove the tooltip
+                d3.select("#tooltip").remove();
+                d3.selectAll(".highlightBar").classed("highlightBar", false);
+
+            });
     }
 
     // gets area chart data with specified category
