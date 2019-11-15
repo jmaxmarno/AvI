@@ -9,243 +9,18 @@ class AreaChart{
         this.activeTime = activeTime;
         this.updateAttribute = updateAttribute;
         // this.updateTime = updateTime;
-
         this.showSummer = true;
 
-        this.hist = {
-            'width':  1200,
-            'height' : 100,
-            'buffer' : 30
-        };
-        this.area = {
-            'width': 1200,
-            'height': 300,
-            'buffer': 30
-        }
-
+        this.hist = {'width':  1200,'height' : 100,'buffer' : 30};
+        this.area = {'width': 1200,'height': 300,'buffer': 30};
+        this.months = {1:"January", 2:"February", 3:"March", 4:"April", 5:"May", 6:"June",
+            7:"July", 8:"August", 9:"September", 10:"October", 11:"November", 12:"December"};
         this.attributes = ["trigger", "aspect", "size", "elevation"];
         this.sortedLabels = {};
         this.setSortedLabels();
 
-        this.createHistogram();
-        this.createAreaChart();
-        this.drawDropDown();
-        this.checkBox();
+        this.draw();
     };
-
-    // sets sorted label order
-    setSortedLabels(){
-        // get a valid year and month
-        let year = Object.keys(this.data)[0];
-        let month = Object.keys(this.data[year])[0];
-        // nominal should be sorted by largest value
-        this.sortedLabels["trigger"] = this.sortCategory("trigger");
-        this.sortedLabels["aspect"] = this.sortCategory("aspect");
-        // ordinal should be in the right order already
-        this.sortedLabels["size"] = Object.keys(this.data[year][month]["size"]);
-        this.sortedLabels["elevation"] = Object.keys(this.data[year][month]["elevation"]);
-    }
-
-    // returns sorted list of category labels
-    sortCategory(category){
-        // get a valid year and month
-        let startYear = Object.keys(this.data)[0];
-        let startMonth = Object.keys(this.data[startYear])[0];
-        let labels = Object.keys(this.data[startYear][startMonth][category]);
-        // initialize dict for counts of labels
-        let count_dict = {};
-        for (let index = 0; index < labels.length; index++){
-            count_dict[labels[index]] = 0;
-        }
-        // set counts of labels
-        for (let year in this.data) {
-            for (let month in this.data[year]) {
-                for (let index = 0; index < labels.length; index++){
-                    count_dict[labels[index]] = count_dict[labels[index]] + this.data[year][month][category][labels[index]];
-                }
-            }
-        }
-        //sort by counts of labels
-        let sorted_labels = Object.keys(count_dict).sort(function(a, b) {
-          return count_dict[b] - count_dict[a];
-        })
-        return sorted_labels;
-    }
-
-    // draws histogram of all data
-    createHistogram(){
-        let axisBuffer = 30;
-        let data = this.histData
-        if (!this.showSummer){
-            let newData = [];
-            for (let index = 0; index < data.length; index ++){
-                if (data[index]["count"] > 0){
-                    newData.push(data[index]);
-                }
-            }
-            data = newData;
-        }
-        let that = this;
-        // scale
-        let xHistScale = d3.scaleLinear()
-            .domain([0, data.length])
-            .range([0, this.hist.width]);
-        let maxCount = d3.max(this.histData, (d) => d.count);
-        let yHistScale = d3.scaleLinear()
-            .domain([0,maxCount])
-            .range([0, this.hist.height-10]);
-        let yAxisScale = d3.scaleLinear()
-            .domain([maxCount,0])
-            .range([10, this.hist.height]);
-        // svg
-         let svg = d3.select('#histogram').append('svg')
-            .attr("width", this.hist.width+(2*this.hist.buffer))
-            .attr("height", this.hist.height+(2*this.hist.buffer));
-        // axis
-        let yAxis = d3.axisLeft();
-        yAxis.scale(yAxisScale)
-            .ticks(3);
-        svg.append("g")
-            .attr("id","yHistAxis")
-            .attr("transform", "translate("+this.hist.buffer+","+ this.hist.buffer+")") 
-            .call(yAxis);
-        d3.select("g#yHistAxis").select("path").remove(); // remove top tick
-        // add plot
-        let plot = svg.append("g").attr("transform", "translate("+this.hist.buffer+","+this.hist.buffer+")").attr("id", "histPlot");
-        // border
-        plot.append("rect")
-            .attr("width", this.hist.width)
-            .attr("height", this.hist.height)
-            .attr("class", "border")
-        // histogram bars
-        let barWidth = this.hist.width/data.length;
-        let bar = plot.selectAll("g")
-            .data(data)
-            .enter().append("g");
-        bar.append("line")
-            .attr('x1', (d,i) => xHistScale(i))
-            .attr('x2', (d,i) => xHistScale(i))
-            .attr('y1', 0)
-            .attr('y2', function(d){
-                if (d.month == 1){ return that.hist.height }
-                else{ return 0}
-            })
-            .attr("class", "yearLine");
-        bar.append("rect")
-            .attr('x', (d,i) => xHistScale(i))
-            .attr('y', (d) => this.hist.height - yHistScale(d.count))
-            .attr('width',barWidth)
-            .attr('height', (d) => yHistScale(d.count))
-            .attr("class", function(d){
-                return "date"+String(d.month)+String(d.year);
-            });
-        bar.append("text")
-            .attr('x', (d,i) => xHistScale(i))
-            .attr('y', -this.hist.buffer/2)
-            .text(function(d){
-                if (that.showSummer && d.month == 5){ return d.year }
-                if (!that.showSummer && d.month == 3){ return d.year }
-                else{return ""}
-            })
-            .attr("class", "yearLabel");
-
-        bar.selectAll("rect").on("mouseover", function(d) {
-                var xPosition = parseFloat(d3.select(this).attr("x"));
-                var yPosition = parseFloat(d3.select(this).attr("y"));
-                plot.append("title") //Create the tooltip label
-                    .attr("id", "tooltip")
-                    .attr("x", xPosition)
-                    .attr("y", yPosition)
-                    .text(d.month + "/" + d.year + "\n" 
-                        + "Observation count: " + d.count);
-                // highlight
-                d3.selectAll(".date"+String(d.month)+String(d.year)).classed("highlightBar", true);
-            })
-            .on("mouseout", function() {//Remove the tooltip
-                d3.select("#tooltip").remove();
-                d3.selectAll(".highlightBar").classed("highlightBar", false);
-
-            });
-
-    }
-
-    updateHistogram(){
-        let that = this;
-        let data = this.histData;
-        if (!this.showSummer){
-            let newData = [];
-            for (let index = 0; index < data.length; index ++){
-                if (data[index]["count"] > 0){
-                    newData.push(data[index]);
-                }
-            }
-            data = newData;
-        }
-        let xHistScale = d3.scaleLinear()
-            .domain([0, data.length])
-            .range([0, this.hist.width]);
-        let maxCount = d3.max(this.histData, (d) => d.count);
-        let yHistScale = d3.scaleLinear()
-            .domain([0,maxCount])
-            .range([0, this.hist.height-10]);
-        let barWidth = this.hist.width/data.length;
-        let barGroups = d3.select("#histPlot").selectAll("g").data(data);
-        let barEnter = barGroups.enter().append("g");
-        barEnter.append("line");
-        barEnter.append("rect");
-        barEnter.append("text");
-        barGroups.exit().remove();
-        barGroups.select("line")
-            .transition()
-            .duration(500)
-            .attr('x1', (d,i) => xHistScale(i))
-            .attr('x2', (d,i) => xHistScale(i))
-            .attr('y1', 0)
-            .attr('y2', function(d){
-                if (d.month == 1){ return that.hist.height }
-                else{ return 0}
-            })
-            .attr("class", "yearLine");
-        barGroups.select("rect")
-            .transition()
-            .duration(500)
-            .attr('x', (d,i) => xHistScale(i))
-            .attr('y', (d) => this.hist.height - yHistScale(d.count))
-            .attr('width',barWidth)
-            .attr('height', (d) => yHistScale(d.count))
-            .attr("class", function(d){
-                return "date"+String(d.month)+String(d.year);
-            });;
-        barGroups.select("text")
-            .transition()
-            .duration(500)
-            .attr('x', (d,i) => xHistScale(i))
-            .attr('y', -this.hist.buffer/2)
-            .text(function(d){
-                if (that.showSummer && d.month == 5){ return d.year }
-                if (!that.showSummer && d.month == 3){ return d.year }
-                else{return ""}
-            })
-            .attr("class", "yearLabel");   
-        barGroups = barEnter.merge(barGroups);
-        d3.select(".histBars").on("mouseover", function(d) {
-                var xPosition = parseFloat(d3.select(this).attr("x"));
-                var yPosition = parseFloat(d3.select(this).attr("y"));
-                d3.select("#histPlot").append("title") //Create the tooltip label
-                    .attr("id", "tooltip")
-                    .attr("x", xPosition)
-                    .attr("y", yPosition)
-                    .text(d.month + "/" + d.year + "\n" 
-                        + "Observation count: " + d.count);
-                // highlight
-                d3.selectAll(".date"+String(d.month)+String(d.year)).classed("highlightBar", true);
-            })
-            .on("mouseout", function() {//Remove the tooltip
-                d3.select("#tooltip").remove();
-                d3.selectAll(".highlightBar").classed("highlightBar", false);
-
-            });
-    }
 
     setAttribute(attribute){
         this.activeAttribute = attribute;
@@ -254,70 +29,51 @@ class AreaChart{
 
     setTime(activeTime){
         this.activeTime = activeTime;
+        this.updateHistogram();
         this.updateAreaChart();
 
     }
 
-    // Creates area chart layout
-    createAreaChart(){
-        // svg
+
+    // Creates area chart, histogram, and dropdown layout
+    draw(){
+        // set up for hist 
+        let histSvg = d3.select('#areachart').append('svg')
+            .attr("width", this.hist.width+(2*this.hist.buffer))
+            .attr("height", this.hist.height+(2*this.hist.buffer));
+        // axis
+        let maxCount = d3.max(this.histData, (d) => d.count);
+        let yAxisScale = d3.scaleLinear()
+            .domain([maxCount,0])
+            .range([10, this.hist.height]);
+        let yAxis = d3.axisLeft();
+        yAxis.scale(yAxisScale)
+            .ticks(3);
+        histSvg.append("g")
+            .attr("id","yHistAxis")
+            .attr("transform", "translate("+this.hist.buffer+","+ this.hist.buffer+")") 
+            .call(yAxis);
+        d3.select("g#yHistAxis").select("path").remove(); // remove top tick
+        // add plot
+        let histPlot = histSvg.append("g").attr("transform", "translate("+this.hist.buffer+","+this.hist.buffer+")").attr("id", "histPlot");
+        // border
+        histPlot.append("rect")
+            .attr("width", this.hist.width)
+            .attr("height", this.hist.height)
+            .attr("class", "border")
+
+        // set up for area chart
         let areaSVG = d3.select('#areachart').append('svg')
             .attr("width", this.area.width + (2*this.area.buffer))
-            .attr("height", this.area.height + (2*this.area.buffer));
+            .attr("height", this.area.height + (this.area.buffer));
         //plot
-        let plot = areaSVG.append("g").attr("transform", "translate("+this.area.buffer+","+this.area.buffer+")").attr("id", "areaPlot");
+        let areaPlot = areaSVG.append("g").attr("transform", "translate("+this.area.buffer+",0)").attr("id", "areaPlot");
         //border
-        plot.append("rect")
+        areaPlot.append("rect")
             .attr("width", this.area.width)
             .attr("height", this.area.height)
             .attr("class", "border");
-        //define series
-        let areaData = this.getAreaData();
-        let columns = Object.keys(areaData[0]);
-        let series = d3.stack().keys(columns.slice(2))(areaData); // don't include date
-        console.log(series);
-        // bar scales
-        let xBarScale = d3.scaleLinear()
-            .domain([0, areaData.length])
-            .range([0, this.area.width]);
-        let yBarScale = d3.scaleLinear()
-            .domain([0,1])
-            .range([this.area.height,0]);
-        let color = d3.scaleOrdinal(d3.schemeCategory10);
-        // add bars
-        let rectWidth = this.area.width/areaData.length;
-        let catGroups = plot.selectAll("g").data(series).enter()
-            .append("g")
-            .style("fill", d => color(d.key));
-        catGroups.selectAll("rect")
-            .data(d => d)
-            .join("rect")
-            .attr("class", function(d){
-                return "date"+String(d.data.date).replace("/","");
-            })
-            .attr("x", (d, i) => xBarScale(i))
-            .attr("y", d=> yBarScale(d[1]))
-            .attr("height",d=> yBarScale(d[0]) - yBarScale(d[1]))
-            .attr("width", rectWidth)
-            .on("mouseover", function(d) {
-                let label = Object.keys(d.data).find(key => d.data[key] === Math.abs(d[0]-d[1]).toFixed(3));
-                let percent = (d.data[label]*100).toFixed(1)
-                var xPosition = parseFloat(d3.select(this).attr("x"));
-                var yPosition = parseFloat(d3.select(this).attr("y"));
-                plot.append("title") //Create the tooltip label
-                    .attr("id", "tooltip")
-                    .attr("x", xPosition)
-                    .attr("y", yPosition)
-                    .text(d.data.date + "\n" + label + ": " + percent + "%");
-                // highlight
-                d3.selectAll(".date"+String(d.data.date).replace("/","")).classed("highlightBar", true);
-                // d3.selectAll("rect");
-            })
-            .on("mouseout", function() {//Remove the tooltip
-                d3.select("#tooltip").remove();
-                d3.selectAll(".highlightBar").classed("highlightBar", false);
 
-            });
         // set up for drop down
         let dropdownWrap = d3.select('#dropdown').append('div').classed('dropdown-wrapper', true);
         let aWrap = dropdownWrap.append('div').classed('dropdown-panel', true);
@@ -326,8 +82,91 @@ class AreaChart{
             .text('Attirbute');
         aWrap.append('div').attr('id', 'dropdown_a').classed('dropdown', true).append('div').classed('dropdown-content', true)
             .append('select');
-        
+
+        this.drawDropDown();
+        this.checkBox();
+        this.updateHistogram();
     }
+
+    // draws histogram
+    updateHistogram(){
+        let that = this;
+        let data = this.getAreaData();
+        //scales 
+        let xHistScale = d3.scaleLinear()
+            .domain([0, data.length])
+            .range([0, this.hist.width]);
+        let maxCount = d3.max(this.histData, (d) => d.count);
+        let yHistScale = d3.scaleLinear()
+            .domain([0,maxCount])
+            .range([0, this.hist.height-10]);
+        let barGroups = d3.select("#histPlot").selectAll("g").data(data);
+        let barEnter = barGroups.enter().append("g");
+        barEnter.append("line");
+        barEnter.append("rect");
+        barEnter.append("text");
+        barGroups.exit().remove();
+        barGroups = barEnter.merge(barGroups);
+        barGroups.select("line")
+            .transition()
+            .duration(500)
+            .attr('x1', (d,i) => d.dims.xval)
+            .attr('x2', (d,i) => d.dims.xval)
+            .attr('y1', 0)
+            .attr('y2', function(d){
+                let month = d.date.split("/")[0];
+                if (month == 1){ return that.hist.height }
+                else{ return 0}
+            })
+            .attr("class", "yearLine");
+        barGroups.select("text")
+            .transition()
+            .duration(500)
+            .attr('x', (d,i) => d.dims.xval)
+            .attr('y', -this.hist.buffer/2)
+            .attr("class", "yearLabel")
+            .text(function(d){
+                let month = d.date.split("/")[0];
+                let year = d.date.split("/")[1];
+                if (that.showSummer && month == 5){ return year }
+                if (!that.showSummer && month == 3){ return year }
+                else{return ""}
+            });
+        barGroups.select("rect")
+            .transition()
+            .duration(500)
+            .attr("x", d=> d.dims.xval)
+            .attr('y', (d) => this.hist.height - yHistScale(d.count))
+            .attr("width", d=> d.dims.width)
+            .attr('height', (d) => yHistScale(d.count))
+            .attr("class", function(d){
+                return "histBar date"+String(d.date).replace("/","");
+            });
+        let rects = d3.select("#histPlot").selectAll("g").selectAll("rect");
+        rects.on("mouseover", function(d) {
+                let xPosition = parseFloat(d3.select(this).attr("x"));
+                let yPosition = parseFloat(d3.select(this).attr("y"));
+                let month = d.date.split("/")[0];
+                let year = d.date.split("/")[1];
+                let count = d.count;
+                d3.select("#histPlot").append("title") //Create the tooltip label
+                    .attr("id", "tooltip")
+                    .attr("x", xPosition)
+                    .attr("y", yPosition)
+                    .text(function(d){
+                        return that.months[month] + " " + year + "\n" + "Observation count: " + count;
+                    });
+                // highlight
+                d3.selectAll(".date"+String(month)+String(year)).classed("highlightBar", true);
+            })
+            .on("mouseout", function() {//Remove the tooltip
+                d3.select("#tooltip").remove();
+                d3.selectAll(".highlightBar").classed("highlightBar", false);
+            });
+    }
+
+
+
 
     // updates area chart with given attribute data
     updateAreaChart(){
@@ -337,7 +176,7 @@ class AreaChart{
         let areaData = this.getAreaData();
         let columns = Object.keys(areaData[0]);
         // console.log('columns', columns.slice(2))
-        let series = d3.stack().keys(columns.slice(2))(areaData); // don't include date or dimensions
+        let series = d3.stack().keys(columns.slice(3))(areaData); // don't include date or dimensions
         // console.log('series', series)
         // bar scales
         let xBarScale = d3.scaleLinear()
@@ -356,9 +195,7 @@ class AreaChart{
         catGroups = catEnter.merge(catGroups);
         let catRects = catGroups.selectAll("rect").data(d => d);
         let catRectsEnter = catRects.enter().append("rect")
-            // .attr("x", (d, i) => xBarScale(i))
             .attr("x", d=>d.data.dims.xval)
-            // .attr("width", rectWidth)
             .attr("width", d=>d.data.dims.width)
             .style("opacity", 0);
         catRects.exit()
@@ -371,7 +208,6 @@ class AreaChart{
         catRects.transition()
             .duration(500)
             .attr("x", d=>d.data.dims.xval)
-            // .attr("width", rectWidth)
             .attr("width", d=>d.data.dims.width)
             .attr("y", d=> yBarScale(d[1]))
             .attr("height",d=> yBarScale(d[0]) - yBarScale(d[1]))
@@ -380,16 +216,19 @@ class AreaChart{
             })
             .style("opacity", 1);
 
+        let that = this;
         catRects.on("mouseover", function(d) {
                 let label = Object.keys(d.data).find(key => d.data[key] === Math.abs(d[0]-d[1]).toFixed(3));
                 let percent = (d.data[label]*100).toFixed(1)
                 var xPosition = parseFloat(d3.select(this).attr("x"));
                 var yPosition = parseFloat(d3.select(this).attr("y"));
+                let month = d.data.date.split("/")[0];
+                let year = d.data.date.split("/")[1];
                 plot.append("title") //Create the tooltip label
                     .attr("id", "tooltip")
                     .attr("x", xPosition)
                     .attr("y", yPosition)
-                    .text(d.data.date + "\n" + label + ": " + percent + "%");
+                    .text(that.months[month] + " " + year + "\n" + label + ": " + percent + "%");
                 // highlight
                 d3.selectAll(".date"+String(d.data.date).replace("/","")).classed("highlightBar", true);
                 // d3.selectAll("rect");
@@ -422,6 +261,7 @@ class AreaChart{
                 let dict = {'date': date};
                 dict.dims = {};
                 let count = this.data[year][month]["total_count"];
+                dict["count"] = count;
                 let allZeros = true;
                 for (let index = 0; index < labels.length; index++){
                     let label = labels[index];
@@ -472,6 +312,8 @@ class AreaChart{
         })
         return withx;
     };
+
+    // dynamically set width scale
     widthscale(total, selection, width){
       if(selection>total){
         throw "Selection is greater than total!"
@@ -493,94 +335,47 @@ class AreaChart{
         console.error(e);
       }
     }
-    // updaterectwidth(dateselection){
-    //   let that=this;
-    //   if(dateselection.length>0){
-    //     console.log('datesel',dateselection.length, dateselection)
-    //     let selyears = dateselection.map(d=>d.year)
-    //     let allbars = d3.select('#areaSVG').selectAll('rect').filter(d=>d)
-    //     let bbars=allbars.filter(function(d){
-    //       if (d){
-    //         let ddate = d.data.date.split("/")
-    //         let mmonth = ddate[0]
-    //         let yyear = ddate[1]
-    //         if(selyears.includes(yyear)){
-    //           let selmonths = dateselection.filter(d=>d.year==yyear).map(d=>d.month);
-    //           if(selmonths.includes(mmonth)){
-    //             return d
-    //           }
-    //         }
-    //       }
-    //   })
-    //
-    //   let totalbars = []
-    //   allbars.each(function(d, i){
-    //     let xx = d3.select(this).attr("x")
-    //     if(totalbars.includes(xx)){
-    //       // console.log(xx, 'alreaady in there')
-    //     }else{
-    //       totalbars.push(xx)
-    //     }
-    //   })
-    //
-    //   let selbars = []
-    //   bbars.each(function(d, i){
-    //     let xx = d3.select(this).attr("x")
-    //     if(selbars.includes(xx)){
-    //       // console.log(xx, 'alreaady in there')
-    //     }else{
-    //       selbars.push(xx)
-    //     }
-    //   })
-    //   // let selectedbars = Object.keys(bbars.data()).length
-    //   let newwidths = this.widthscale(totalbars.length, selbars.length, this.area.width)
-    //
-    //     allbars.attr('width', newwidths[1])
-    //     bbars.attr('width', newwidths[0])
-    //
-    //   // console.log('totalbars', totalbars)
-    //   // console.log('selected bars', selbars)
-    //
-    //   function xval(inx){
-    //     let xcount = totalbars.filter(d=> d<inx).map(function(d){
-    //       // console.log('xbarval', d)
-    //       //   console.log('d less than inx')
-    //         if(selbars.includes(String(d))){
-    //           // console.log('d IS in selbars')
-    //           return newwidths[0]
-    //         }else{
-    //           // console.log('d not in selbars')
-    //           return newwidths[1]
-    //         }
-    //     })
-    //     return xcount.reduce((a,b)=> a+b, 0)
-    //   }
-    //   // allbars.each(function(d, i){
-    //   //   let currx = d3.select(this).attr("x")
-    //   //   d3.select(this).attr("x", d=>xval(currx))
-    //   // })
-    //   console.log('xval:200', xval(200))
-    //
-    //
-    //   }else{
-    //     let allbars = d3.select('#areaSVG').selectAll('rect').filter(d=>d)
-    //     let totalbars = []
-    //     allbars.each(function(d, i){
-    //       let xx = d3.select(this).attr("x")
-    //       if(totalbars.includes(xx)){
-    //         // console.log(xx, 'alreaady in there')
-    //       }else{
-    //         totalbars.push(xx)
-    //       }
-    //     })
-    //     let rectWidth = that.area.width/totalbars.length
-    //     allbars.attr('width', rectWidth)
-    //     allbars.attr('x', function(d,i){
-    //       return i*that.area.width/totalbars.length
-    //     })
-    //   }
-    // }
+   
+    // sets sorted label order
+    setSortedLabels(){
+        // get a valid year and month
+        let year = Object.keys(this.data)[0];
+        let month = Object.keys(this.data[year])[0];
+        // nominal should be sorted by largest value
+        this.sortedLabels["trigger"] = this.sortCategory("trigger");
+        this.sortedLabels["aspect"] = this.sortCategory("aspect");
+        // ordinal should be in the right order already
+        this.sortedLabels["size"] = Object.keys(this.data[year][month]["size"]);
+        this.sortedLabels["elevation"] = Object.keys(this.data[year][month]["elevation"]);
+    }
 
+    // returns sorted list of category labels
+    sortCategory(category){
+        // get a valid year and month
+        let startYear = Object.keys(this.data)[0];
+        let startMonth = Object.keys(this.data[startYear])[0];
+        let labels = Object.keys(this.data[startYear][startMonth][category]);
+        // initialize dict for counts of labels
+        let count_dict = {};
+        for (let index = 0; index < labels.length; index++){
+            count_dict[labels[index]] = 0;
+        }
+        // set counts of labels
+        for (let year in this.data) {
+            for (let month in this.data[year]) {
+                for (let index = 0; index < labels.length; index++){
+                    count_dict[labels[index]] = count_dict[labels[index]] + this.data[year][month][category][labels[index]];
+                }
+            }
+        }
+        //sort by counts of labels
+        let sorted_labels = Object.keys(count_dict).sort(function(a, b) {
+          return count_dict[b] - count_dict[a];
+        })
+        return sorted_labels;
+    }
+
+    // attribute drop down functionality 
     drawDropDown(indicator) {
         let that = this;
         let dropDownWrapper = d3.select('.dropdown-wrapper');
