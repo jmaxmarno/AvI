@@ -24,49 +24,44 @@
           <p class="subtitle has-text-centered">
             Exploring Utah's observed avalanches and how they change over time
           </p>
-
         </div>
-
       </div>
     </section>
 
-<div class="tile is-ancestor">
-  <div class="tile is-parent is-3 is-vertical">
-    <div class="tile is-child box">
-      <p class="subtitle has-text-centered">
-        Area Chart Legend
-      </p>
-      <p>... other toggles?</p>
-      <p>something</p>
-    </div>
-    <div class="tile is-child box" id="dropdown">
-      <input type="checkbox" id="summerCheckBox" name="summerCheckBox" checked>
-    <label for="summerCheckBox">Show months with no reported observations.</label>
-    </div>
-  </div>
-  <div class="tile is-parent is-vertical">
-    <div class="tile is-child box" id="areachart">
-    </div>
-  </div>
-</div>
-<div class="tile is-ancestor">
-  <div class="tile is-parent">
-    <div class="tile is-child is-2 box">
+    <div class="tile is-ancestor">
+      <div class="tile is-parent ">
+        <div class="tile is-child is-parent is-4 box ">
+          <p class="subtitle">
+          Select time region of interest
+          </p>
+          <div class="tile is-medium is-child notification box" id="yeargrid">
+          </div>
+          <input type="checkbox" id="summerCheckBox" name="summerCheckBox" checked>
+          <label for="summerCheckBox">Show months with no reported observations.</label>
+        </div>
 
-    </div>
-    <div class="tile is-small is-child notification is-info has-text-centered box" id="story">
-      <span class="title">
-        Story Time
-      </span>
+        <div class="tile is-medium is-child is-2 box" id="dropdown">
+          <div class = "dropdown-wrapper" id = "dropdown-wrapper">
+          </div>
+          <div class="tile is-medium is-child notification box" id="starplot">
+          </div>
+        </div>
 
+        <div class="tile is-child notification is-info has-text-centered box" id="story">
+          <span class="subtitle">
+            Story Time
+          </span>
+        </div>
+      </div>
     </div>
-    <div class="tile is-medium is-child is-5 notification box" id="yeargrid">
-    </div>
-  </div>
-</div>
 
-  <div class="tile is-1 is-medium is-centered" id = "otherviews">
-  </div>
+    <div class="tile is-ancestor ">
+      <div class="tile is-parent">
+        <div class="tile is-child has-text-centered  box" id="areachart">
+        </div>
+      </div>
+    </div>
+
   </body>
   <script src="js/AreaChart.js" async></script>
   <script src="js/yeargrid.js" aync></script>

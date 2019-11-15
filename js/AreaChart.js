@@ -11,8 +11,9 @@ class AreaChart{
         // this.updateTime = updateTime;
         this.showSummer = true;
 
-        this.hist = {'width':  1200,'height' : 100,'buffer' : 30};
-        this.area = {'width': 1200,'height': 300,'buffer': 30};
+        this.hist = {'width':  1400,'height' : 50};
+        this.area = {'width': 1400,'height': 200};
+        this.buffer = 30
         this.months = {1:"January", 2:"February", 3:"March", 4:"April", 5:"May", 6:"June",
             7:"July", 8:"August", 9:"September", 10:"October", 11:"November", 12:"December"};
         this.attributes = ["trigger", "aspect", "size", "elevation"];
@@ -34,13 +35,12 @@ class AreaChart{
 
     }
 
-
     // Creates area chart, histogram, and dropdown layout
     draw(){
         // set up for hist 
         let histSvg = d3.select('#areachart').append('svg')
-            .attr("width", this.hist.width+(2*this.hist.buffer))
-            .attr("height", this.hist.height+(2*this.hist.buffer));
+            .attr("width", this.hist.width+(2*this.buffer))
+            .attr("height", this.hist.height+this.buffer+5);
         // axis
         let maxCount = d3.max(this.histData, (d) => d.count);
         let yAxisScale = d3.scaleLinear()
@@ -51,11 +51,11 @@ class AreaChart{
             .ticks(3);
         histSvg.append("g")
             .attr("id","yHistAxis")
-            .attr("transform", "translate("+this.hist.buffer+","+ this.hist.buffer+")") 
+            .attr("transform", "translate("+this.buffer+","+ this.buffer+")") 
             .call(yAxis);
         d3.select("g#yHistAxis").select("path").remove(); // remove top tick
         // add plot
-        let histPlot = histSvg.append("g").attr("transform", "translate("+this.hist.buffer+","+this.hist.buffer+")").attr("id", "histPlot");
+        let histPlot = histSvg.append("g").attr("transform", "translate("+this.buffer+","+this.buffer+")").attr("id", "histPlot");
         // border
         histPlot.append("rect")
             .attr("width", this.hist.width)
@@ -64,10 +64,10 @@ class AreaChart{
 
         // set up for area chart
         let areaSVG = d3.select('#areachart').append('svg')
-            .attr("width", this.area.width + (2*this.area.buffer))
-            .attr("height", this.area.height + (this.area.buffer));
+            .attr("width", this.area.width + (2*this.buffer))
+            .attr("height", this.area.height);
         //plot
-        let areaPlot = areaSVG.append("g").attr("transform", "translate("+this.area.buffer+",0)").attr("id", "areaPlot");
+        let areaPlot = areaSVG.append("g").attr("transform", "translate("+this.buffer+",0)").attr("id", "areaPlot");
         //border
         areaPlot.append("rect")
             .attr("width", this.area.width)
@@ -75,7 +75,8 @@ class AreaChart{
             .attr("class", "border");
 
         // set up for drop down
-        let dropdownWrap = d3.select('#dropdown').append('div').classed('dropdown-wrapper', true);
+
+        let dropdownWrap = d3.select('#dropdown-wrapper');
         let aWrap = dropdownWrap.append('div').classed('dropdown-panel', true);
         aWrap.append('div').classed('d-label', true)
             .append('text')
@@ -108,22 +109,20 @@ class AreaChart{
         barGroups.exit().remove();
         barGroups = barEnter.merge(barGroups);
         barGroups.select("line")
-            .transition()
-            .duration(500)
-            .attr('x1', (d,i) => d.dims.xval)
-            .attr('x2', (d,i) => d.dims.xval)
             .attr('y1', 0)
             .attr('y2', function(d){
                 let month = d.date.split("/")[0];
                 if (month == 1){ return that.hist.height }
                 else{ return 0}
             })
-            .attr("class", "yearLine");
-        barGroups.select("text")
             .transition()
             .duration(500)
+            .attr('x1', (d,i) => d.dims.xval)
+            .attr('x2', (d,i) => d.dims.xval)
+            .attr("class", "yearLine");
+        barGroups.select("text")
             .attr('x', (d,i) => d.dims.xval)
-            .attr('y', -this.hist.buffer/2)
+            .attr('y', -this.buffer/2)
             .attr("class", "yearLabel")
             .text(function(d){
                 let month = d.date.split("/")[0];
@@ -133,11 +132,13 @@ class AreaChart{
                 else{return ""}
             });
         barGroups.select("rect")
+            .attr("x", d=> d.dims.xval)
+            .attr('y', (d) => this.hist.height)
+            .attr("width", d=> d.dims.width)
+            .attr('height', 0)
             .transition()
             .duration(500)
-            .attr("x", d=> d.dims.xval)
             .attr('y', (d) => this.hist.height - yHistScale(d.count))
-            .attr("width", d=> d.dims.width)
             .attr('height', (d) => yHistScale(d.count))
             .attr("class", function(d){
                 return "histBar date"+String(d.date).replace("/","");
@@ -378,7 +379,7 @@ class AreaChart{
     // attribute drop down functionality 
     drawDropDown(indicator) {
         let that = this;
-        let dropDownWrapper = d3.select('.dropdown-wrapper');
+        let dropDownWrapper = d3.select('#dropdown-wrapper');
         let dropData = [];
         //
         for (let index = 0; index < this.attributes.length; index++){
@@ -396,7 +397,7 @@ class AreaChart{
             .append('option')
             .attr('value', (d, i) => d.indicator);
         optionsEnter.append('text')
-            .text((d, i) => d.indicator_name);
+            .text((d, i) => d.indicator_name.charAt(0).toUpperCase() + d.indicator_name.slice(1));
         options = optionsEnter.merge(options);
 
         let selected = options.filter(d => d.indicator === indicator)

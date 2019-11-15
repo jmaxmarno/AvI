@@ -25,9 +25,9 @@ class yeargrid {
       return d
     })
 
-    const margin = {top:40, bottom:40, left:60, right:40};
-    const width = 700 - margin.left - margin.right
-    const height = 400 - margin.top - margin.bottom
+    const margin = {top:40, bottom:0, left:60, right:40};
+    const width = 450 - margin.left - margin.right
+    const height = 250 - margin.top - margin.bottom
 
     const ygdiv = d3.select("#yeargrid")
     // console.log('ygdiv', ygdiv)
