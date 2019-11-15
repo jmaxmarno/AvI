@@ -131,15 +131,13 @@ class AreaChart{
                 if (!that.showSummer && month == 3){ return year }
                 else{return ""}
             });
-        barGroups.select("rect")
-            .attr("x", d=> d.dims.xval)
-            .attr('y', (d) => this.hist.height)
-            .attr("width", d=> d.dims.width)
-            .attr('height', 0)
+        barGroups.select("rect")           
             .transition()
             .duration(500)
+            .attr("x", d=> d.dims.xval)
             .attr('y', (d) => this.hist.height - yHistScale(d.count))
-            .attr('height', (d) => yHistScale(d.count))
+            .attr('height', (d) => yHistScale(d.count)) 
+            .attr("width", d=> d.dims.width)
             .attr("class", function(d){
                 return "histBar date"+String(d.date).replace("/","");
             });
@@ -255,6 +253,7 @@ class AreaChart{
           activemonthscount = this.activeTime.map(d=>d.months.length).reduce((a,b)=> a+b, 0)
           console.log('selectedyears', activeyears, activemonthscount)
         }
+        let summer = [];
 
         for (let year in this.data) {
             for (let month in this.data[year]) {
@@ -279,6 +278,7 @@ class AreaChart{
                 if (allZeros == true){
                     if (that.showSummer == true){
                         areaData.push(dict);
+                        summer.push(dict.date)
                     }
                 }
                 else{
@@ -311,7 +311,17 @@ class AreaChart{
           d.dims.xval = widthmap.slice(0, i).reduce((a,b)=>a+b,0)
           return d
         })
-        return withx;
+        console.log(summer);
+        let final = [];
+        for (let index = 0; index < withx.length; index ++) {
+            let dict = withx[index]
+            console.log(dict)
+            if (summer.indexOf(dict.date) < 0){
+                final.push(dict);
+            }
+        }
+        return final;
+        console.log(final)
     };
 
     // dynamically set width scale
