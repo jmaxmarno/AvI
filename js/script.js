@@ -5,7 +5,6 @@ Jadie Adams and Max Marno
 d3.json('data/avalanches.json').then( data => {
     this.activeAtrribute = "trigger";
     this.activeTime = {};
-
     let that = this;
 
 	function getCountData(){
@@ -31,6 +30,7 @@ d3.json('data/avalanches.json').then( data => {
 
     countData = getCountData();
     const areaChart = new AreaChart(data, countData, this.activeAtrribute, this.activeTime, updateAttribute, updateTime);
-		const yearGrid = new yeargrid(countData, updateTime)
+		const yearGrid = new yeargrid(countData, updateTime);
+    const spider = new spiderchart(data, countData, that.activeAtrribute, this.activeTime);
 
 });

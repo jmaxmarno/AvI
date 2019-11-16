@@ -37,7 +37,7 @@ class AreaChart{
 
     // Creates area chart, histogram, and dropdown layout
     draw(){
-        // set up for hist 
+        // set up for hist
         let histSvg = d3.select('#areachart').append('svg')
             .attr("width", this.hist.width+(2*this.buffer))
             .attr("height", this.hist.height+this.buffer+5);
@@ -51,7 +51,7 @@ class AreaChart{
             .ticks(3);
         histSvg.append("g")
             .attr("id","yHistAxis")
-            .attr("transform", "translate("+this.buffer+","+ this.buffer+")") 
+            .attr("transform", "translate("+this.buffer+","+ this.buffer+")")
             .call(yAxis);
         d3.select("g#yHistAxis").select("path").remove(); // remove top tick
         // add plot
@@ -93,7 +93,7 @@ class AreaChart{
     updateHistogram(){
         let that = this;
         let data = this.getAreaData();
-        //scales 
+        //scales
         let xHistScale = d3.scaleLinear()
             .domain([0, data.length])
             .range([0, this.hist.width]);
@@ -131,12 +131,12 @@ class AreaChart{
                 if (!that.showSummer && month == 3){ return year }
                 else{return ""}
             });
-        barGroups.select("rect")           
+        barGroups.select("rect")
             .transition()
             .duration(500)
             .attr("x", d=> d.dims.xval)
             .attr('y', (d) => this.hist.height - yHistScale(d.count))
-            .attr('height', (d) => yHistScale(d.count)) 
+            .attr('height', (d) => yHistScale(d.count))
             .attr("width", d=> d.dims.width)
             .attr("class", function(d){
                 return "histBar date"+String(d.date).replace("/","");
@@ -164,9 +164,6 @@ class AreaChart{
             });
     }
 
-
-
-
     // updates area chart with given attribute data
     updateAreaChart(){
       console.log('Update Area Chart')
@@ -186,8 +183,8 @@ class AreaChart{
             .range([this.area.height,0]);
         let color = d3.scaleOrdinal(d3.schemeCategory10);
         // add bars
-        let rectWidth = this.area.width/areaData.length;
-        // console.log(rectWidth)
+        // let rectWidth = this.area.width/areaData.length;
+        // // console.log(rectWidth)
         let catGroups = plot.selectAll("g").data(series);
         let catEnter = catGroups.enter().append("g").style("fill", d => color(d.key));
         catGroups.exit().remove();
@@ -286,7 +283,7 @@ class AreaChart{
                 }
             }
         }
-        console.log('areaData',areaData)
+        // console.log('areaData',areaData)
         let total = areaData.length
         let widths = this.widthscale(total, activemonthscount, this.area.width)
 
@@ -311,11 +308,11 @@ class AreaChart{
           d.dims.xval = widthmap.slice(0, i).reduce((a,b)=>a+b,0)
           return d
         })
-        console.log(summer);
+        // console.log(summer);
         let final = [];
         for (let index = 0; index < withx.length; index ++) {
             let dict = withx[index]
-            console.log(dict)
+            // console.log(dict)
             if (summer.indexOf(dict.date) < 0){
                 final.push(dict);
             }
@@ -346,7 +343,7 @@ class AreaChart{
         console.error(e);
       }
     }
-   
+
     // sets sorted label order
     setSortedLabels(){
         // get a valid year and month
@@ -386,7 +383,7 @@ class AreaChart{
         return sorted_labels;
     }
 
-    // attribute drop down functionality 
+    // attribute drop down functionality
     drawDropDown(indicator) {
         let that = this;
         let dropDownWrapper = d3.select('#dropdown-wrapper');
@@ -427,8 +424,8 @@ class AreaChart{
         function update(){
             if(d3.select("#summerCheckBox").property("checked")){
                 that.showSummer = true;
-                that.updateHistogram(); 
-                that.updateAreaChart();        
+                that.updateHistogram();
+                that.updateAreaChart();
             }
             else{
                 that.showSummer = false;

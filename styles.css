@@ -16,11 +16,15 @@ text {
   text-transform: capitalize;
 
 }
+.yeargrid {
+  stroke: gray;
+  stroke-width: 0.5px;
+}
 
 .brushed {
-  stroke: DodgerBlue;
-  stroke-width: 5px;
-  rx:10;
+  stroke: Black;
+  stroke-width: 2px;
+  rx:5;
   ry:10;
 }
 
@@ -126,4 +130,11 @@ div.dropdown-wrapper {
 rect.highlightBar {
     stroke : LightBlue;
     stroke-width : 4;
+}
+text.spideraxis{
+  font-size: 11px;
+  text-align: center;
+
+
+
 }

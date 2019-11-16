@@ -27,7 +27,7 @@ class yeargrid {
 
     const margin = {top:40, bottom:0, left:60, right:40};
     const width = 450 - margin.left - margin.right
-    const height = 250 - margin.top - margin.bottom
+    const height = 350 - margin.top - margin.bottom
 
     const ygdiv = d3.select("#yeargrid")
     // console.log('ygdiv', ygdiv)
@@ -40,8 +40,8 @@ class yeargrid {
 
   const maxcount = Math.max(...that.data.map(d=>+d.count))
 
-  const gcolor = d3.scaleLinear()
-  .range(["black", "white"])
+  const gcolor = d3.scaleSqrt()
+  .range(["white", "red"])
   .domain([1,maxcount])
 
   // Reorder months
@@ -82,8 +82,9 @@ class yeargrid {
   .attr('width', xscale.bandwidth())
   .attr('height', yscale.bandwidth())
   .style('fill', d=>gcolor(d.count))
+  .attr('class', 'yeargrid')
 
-  gridrects.append('svg:title').text('TEST')
+  // gridrects.append('svg:title').text('TEST')
 
   function withinbrush(brushcoords, xx, yy){
     let x0 = brushcoords[0][0];
