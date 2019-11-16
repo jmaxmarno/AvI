@@ -80,7 +80,7 @@ class AreaChart{
         let aWrap = dropdownWrap.append('div').classed('dropdown-panel', true);
         aWrap.append('div').classed('d-label', true)
             .append('text')
-            .text('Attirbute');
+            .text('Attribute');
         aWrap.append('div').attr('id', 'dropdown_a').classed('dropdown', true).append('div').classed('dropdown-content', true)
             .append('select');
 

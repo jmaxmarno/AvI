@@ -5,11 +5,11 @@ class spiderchart{
     constructor(data, histData, category, activeTime) {
       // Chart styling parameters
       console.log(category);
-        this.width = 200;
-        this.height = 200;
+        this.width = 250;
+        this.height = 250;
         this.margin = {top: 40, bottom: 40, left: 50, right: 50};
-        this.innerlevels = 4;
-        this.max = 1;
+        this.innerlevels = 2;
+        this.max = .6;
         this.color = d3.scaleOrdinal(d3.schemeCategory10);
       // Chart Data:
         this.data = data;
@@ -22,10 +22,12 @@ class spiderchart{
         this.labels = Object.keys(this.data[startYear][startMonth][this.category]);
         this.draw();
 
+
     };
 
     draw(){
       let self = this;
+      console.log(self.data)
       let axes = self.labels;
       let axesLength = axes.length;
       let axesRadius = self.height / 2
@@ -34,7 +36,7 @@ class spiderchart{
       let radiusScale = d3.scaleLinear()
       .range([0, axesRadius])
       .domain([0, self.max])
-      console.log(axes)
+
 
       // svg stuff
       d3.select('#spidersvg').remove();
@@ -81,123 +83,76 @@ class spiderchart{
       .attr("text-anchor", "middle")
       .attr("dy", "0.35em")
       .attr('x', function(d, i){
-        return radiusScale(self.max*1.3)*Math.cos(axesSlice*i - Math.PI/2);
+        return radiusScale(self.max*1.2)*Math.cos(axesSlice*i - Math.PI/2);
       })
       .attr('y', function(d, i){
-        return radiusScale(self.max*1.3)*Math.sin(axesSlice*i - Math.PI/2);
+        return radiusScale(self.max*1.2)*Math.sin(axesSlice*i - Math.PI/2);
       })
 
+      let sdata = self.getstardata()
+      console.log(sdata)
+      // TODO: move radial line function up when stable
+      let lineRadial = d3.lineRadial()
+      .radius(function(d){return radiusScale(d.prop)})
+      .angle(function(d, i){return i*axesSlice})
+      // .curve(d3.curveCatmullRomOpen)
 
+      //  Wrapper for star/spider blobs
+      let starWrap = spider_g.append('g').selectAll(".starwrapper")
+      .data([sdata])
+      .enter().append('g')
+      // .attr('class', '')
+      starWrap.append('path')
+      // .attr('class', '')
+      .attr('d', function(d,i){
+        return lineRadial(d)})
+      .style('fill', 'purple')
     }
 
-    getAreaData(){
-        let that = this;
-        let areaData = [];
-        let labels = this.sortedLabels[this.activeAttribute];
-        let activemonthscount = 0;
-        let activeyears = [];
-        // Date range stuff
-        if(this.activeTime.length){
-          console.log('activetime', this.activeTime)
-          activeyears = this.activeTime.map(d=>d.year)
-          activemonthscount = this.activeTime.map(d=>d.months.length).reduce((a,b)=> a+b, 0)
-          console.log('selectedyears', activeyears, activemonthscount)
-        }
-        let summer = [];
-        for (let year in this.data) {
-            for (let month in this.data[year]) {
-                let date = month +'/'+ year;
-                let dict = {'date': date};
-                dict.dims = {};
-                let count = this.data[year][month]["total_count"];
-                dict["count"] = count;
-                let allZeros = true;
-                for (let index = 0; index < labels.length; index++){
-                    let label = labels[index];
-                    let proportion;
-                    if (count != 0){
-                        proportion = (this.data[year][month][this.activeAttribute][label] / count).toFixed(3);
-                        allZeros = false;
-                    }
-                    else{
-                        proportion = 0;
-                    }
-                    dict[label] = proportion;
-                }
-                if (allZeros == true){
-                    if (that.showSummer == true){
-                        areaData.push(dict);
-                        summer.push(dict.date)
-                    }
-                }
-                else{
-                    areaData.push(dict);
-                }
-            }
-        }
-        console.log('areaData',areaData)
-        let total = areaData.length
-        // Scale widths based on 'in' or 'out' of selected date range
-        let widths = this.widthscale(total, activemonthscount, this.area.width)
-        // Calculate rect dimensions based on date range selection:
-        let dated = areaData.map(function(dd, i){
-          let ddate = dd.date.split("/")
-          let mmonth = ddate[0]
-          let yyear = ddate[1]
-          if(activeyears.includes(yyear)){
-            let selmonths = that.activeTime.filter(d=>d.year==yyear)[0].months
-            if(selmonths.includes(parseInt(mmonth))){
-              dd.dims.width = widths[0]
-            }else{
-              dd.dims.width = widths[1]
-            }
-          }else{
-            dd.dims.width = widths[1]
+    update(activeatt){
+      console.log('old attr', this.category);
+      this.category = activeatt;
+      let startYear = Object.keys(this.data)[0];
+      let startMonth = Object.keys(this.data[startYear])[0];
+      this.labels = Object.keys(this.data[startYear][startMonth][this.category]);
+      console.log('new attr', this.category);
+      this.draw()
+    }
+    getstardata(){
+      let self = this;
+      let grandtotal = 0
+      let cattotals = []
+      self.labels.map(function(d){
+        cattotals[d] = {}
+        cattotals[d].count = 0
+        cattotals[d].prop = 0
+      })
+      for (let year in self.data){
+        for(let month in self.data[year]){
+          // console.log('monthtotal', self.data[year][month]);
+          grandtotal += self.data[year][month].total_count
+          let catcount
+          for(let cat in self.data[year][month][self.category]){
+            console.log('cat', cat);
+            console.log('ladf', self.data[year][month][self.category]);
+            cattotals[cat].count += self.data[year][month][self.category][cat]
           }
-          return dd
-        })
-        let widthmap = dated.map(d=>d.dims.width)
-        let withx = dated.map(function(d, i){
-          d.dims.xval = widthmap.slice(0, i).reduce((a,b)=>a+b,0)
-          return d
-        })
-        console.log(summer);
-        let final = [];
-        for (let index = 0; index < withx.length; index ++) {
-            let dict = withx[index]
-            console.log(dict)
-            if (summer.indexOf(dict.date) < 0){
-                final.push(dict);
-            }
         }
-        return final;
-        console.log(final)
-    };
-
-    // dynamically set width scale
-    widthscale(total, selection, width){
-      if(selection>total){
-        throw "Selection is greater than total!"
-      }else if (selection==0) {
-        let w = width/total
-        return [w,w]
       }
-      try{
-        let scalefactor = 0.50
-        let prop = selection/total
-        let newsel = prop+(1-prop)*scalefactor
-        let newout = 1-newsel
-        let selwidth = width*newsel/selection
-        let outwidth = width*newout/(total-selection)
-        console.log('widths', selection, " / ", total, "__width", width, "__sel, out", selwidth, outwidth)
-        return [selwidth, outwidth]
-      }
-      catch{
-        console.error(e);
-      }
+      let starlist = Object.keys(cattotals).map(function(key){
+        cattotals[key].prop = cattotals[key].count/grandtotal
+        let ddict = {}
+        ddict.category = key;
+        ddict.count = cattotals[key].count;
+        ddict.prop = cattotals[key].prop;
+        return ddict
+        // return cattotals[key].count
+      })
+      console.log('list', starlist);
+      return starlist
     }
+
 
 // Adapted from:
 // http://bl.ocks.org/nbremer/raw/21746a9668ffdf6d8242/
-
 }

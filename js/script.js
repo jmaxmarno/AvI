@@ -20,6 +20,7 @@ d3.json('data/avalanches.json').then( data => {
     function updateAttribute(activeAtrribute){
         that.activeAtrribute = activeAtrribute;
         areaChart.setAttribute(activeAtrribute);
+        spider.update(activeAtrribute);
     }
 
     function updateTime(activeTime){
