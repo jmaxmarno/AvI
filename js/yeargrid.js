@@ -26,8 +26,8 @@ class yeargrid {
     })
 
     const margin = {top:40, bottom:0, left:60, right:40};
-    const width = 450 - margin.left - margin.right
-    const height = 350 - margin.top - margin.bottom
+    const width = 500 - margin.left - margin.right
+    const height = 300 - margin.top - margin.bottom
 
     const ygdiv = d3.select("#yeargrid")
     // console.log('ygdiv', ygdiv)
@@ -68,6 +68,12 @@ class yeargrid {
   const yaxgroup = grid_g.append("g")
   .attr('transform', 'translate(' + 0 + ',' + 0 + ')')
   .call(d3.axisLeft(yscale))
+  .selectAll('text')
+  .text(function(d){
+    let cyear = d.toString().slice(-2)
+    let nyear = (parseFloat(d.toString().slice(-2))+1).toString()
+    return cyear+"/"+nyear
+  })
 
   let gridrects = grid_g.selectAll('rect')
   .data(that.data)

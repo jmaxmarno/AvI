@@ -110,12 +110,10 @@ class spiderchart{
     }
 
     update(activeatt){
-      console.log('old attr', this.category);
       this.category = activeatt;
       let startYear = Object.keys(this.data)[0];
       let startMonth = Object.keys(this.data[startYear])[0];
       this.labels = Object.keys(this.data[startYear][startMonth][this.category]);
-      console.log('new attr', this.category);
       this.draw()
     }
     getstardata(){
@@ -133,8 +131,8 @@ class spiderchart{
           grandtotal += self.data[year][month].total_count
           let catcount
           for(let cat in self.data[year][month][self.category]){
-            console.log('cat', cat);
-            console.log('ladf', self.data[year][month][self.category]);
+            // console.log('cat', cat);
+            // console.log('ladf', self.data[year][month][self.category]);
             cattotals[cat].count += self.data[year][month][self.category][cat]
           }
         }
@@ -148,7 +146,6 @@ class spiderchart{
         return ddict
         // return cattotals[key].count
       })
-      console.log('list', starlist);
       return starlist
     }
 
