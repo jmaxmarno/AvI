@@ -100,7 +100,10 @@ class spiderchart{
       let lineRadial = d3.lineRadial()
       .radius(function(d){return radiusScale(d.prop)})
       .angle(function(d, i){return i*axesSlice})
-      // .curve(d3.curveCatmullRomOpen)
+      // .curve(d3.curveCatmullRomClosed.alpha(1));
+      // .curve(d3.curveCardinalClosed)
+      .curve(d3.curveLinearClosed)
+
 
       //  Wrapper for star/spider blobs
       let starWrap = spider_g.append('g').selectAll(".starwrapper")
@@ -112,6 +115,28 @@ class spiderchart{
       .attr('d', function(d,i){
         return lineRadial(d)})
       .style('fill', 'purple')
+
+      // star outline
+      starWrap.append('path')
+      .attr('class', 'staroutline')
+      .attr('d', function(d, i){return lineRadial(d)})
+      .style('stroke-width', '2px')
+      .style('stroke', 'black')
+      .style('fill', 'none')
+
+      // intercept cicles
+      starWrap.selectAll('.starintercept')
+      .data(function(d, i){return d})
+      .enter().append('circle')
+      .attr('class', 'starintercept')
+      .attr('r', '3')
+      .attr('cx', function(d, i){return radiusScale(d.prop)*Math.cos(axesSlice*i - Math.PI/2);})
+      .attr('cy', function(d, i){return radiusScale(d.prop)*Math.sin(axesSlice*i - Math.PI/2);})
+      .style('fill', 'DodgerBlue')
+      .style('fill-opacity', 0.8)
+      // TODO: change this to div tooltip
+      .append('svg:title')
+      .text(function(d, i) {return d3.format(".0%")(d.prop)})
     }
 
     update(activeatt){
