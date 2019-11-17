@@ -7,9 +7,8 @@ class spiderchart{
       console.log(category);
         this.width = 250;
         this.height = 250;
-        this.margin = {top: 40, bottom: 40, left: 50, right: 50};
+        this.margin = {top: 40, bottom: 40, left: 50, right: 60};
         this.innerlevels = 2;
-        this.max = .6;
         this.color = d3.scaleOrdinal(d3.schemeCategory10);
       // Chart Data:
         this.data = data;
@@ -21,13 +20,13 @@ class spiderchart{
         let startMonth = Object.keys(this.data[startYear])[0];
         this.labels = Object.keys(this.data[startYear][startMonth][this.category]);
         this.draw();
-
-
     };
 
     draw(){
       let self = this;
-      console.log(self.data)
+      let sdata = self.getstardata()
+      let maxprop = Math.ceil(10*Math.max(...sdata.map(d=>d.prop)))/10
+
       let axes = self.labels;
       let axesLength = axes.length;
       let axesRadius = self.height / 2
@@ -35,8 +34,7 @@ class spiderchart{
       // radius scale
       let radiusScale = d3.scaleLinear()
       .range([0, axesRadius])
-      .domain([0, self.max])
-
+      .domain([0, maxprop])
 
       // svg stuff
       d3.select('#spidersvg').remove();
@@ -57,6 +55,16 @@ class spiderchart{
       .style('fill', 'gray')
       .style('stroke', 'black')
       .style('fill-opacity', '0.2')
+      // inner circle labels
+      axesWrap.selectAll('.axislabel').data(d3.range(1,(self.innerlevels+1)).reverse())
+      .enter().append('text')
+      .attr('x', 3)
+      .attr('y', function(d){return -d*axesRadius/self.innerlevels;})
+      .attr('dy', '0.35em')
+      .style('font-size', '10px')
+      .text(function(d, i) {return d3.format(".0%")(maxprop *d/self.innerlevels)})
+
+
       // draw axes lines
       let axesLines = axesWrap.selectAll('.axis')
       .data(self.labels).enter().append('g')
@@ -65,10 +73,10 @@ class spiderchart{
       .attr('x1', 0)
       .attr('y1', 0)
       .attr('x2', function(d, i){
-        return radiusScale(self.max)*Math.cos(axesSlice*i - Math.PI/2);
+        return radiusScale(maxprop)*Math.cos(axesSlice*i - Math.PI/2);
       })
       .attr('y2', function(d, i){
-        return radiusScale(self.max)*Math.sin(axesSlice*i - Math.PI/2);
+        return radiusScale(maxprop)*Math.sin(axesSlice*i - Math.PI/2);
       })
       .attr('class', 'spideraxis')
       .style('stroke', 'white')
@@ -83,14 +91,11 @@ class spiderchart{
       .attr("text-anchor", "middle")
       .attr("dy", "0.35em")
       .attr('x', function(d, i){
-        return radiusScale(self.max*1.2)*Math.cos(axesSlice*i - Math.PI/2);
+        return radiusScale(maxprop*1.2)*Math.cos(axesSlice*i - Math.PI/2);
       })
       .attr('y', function(d, i){
-        return radiusScale(self.max*1.2)*Math.sin(axesSlice*i - Math.PI/2);
+        return radiusScale(maxprop*1.2)*Math.sin(axesSlice*i - Math.PI/2);
       })
-
-      let sdata = self.getstardata()
-      console.log(sdata)
       // TODO: move radial line function up when stable
       let lineRadial = d3.lineRadial()
       .radius(function(d){return radiusScale(d.prop)})
