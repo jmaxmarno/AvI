@@ -211,9 +211,14 @@ class AreaChart{
         let catEnter = catGroups.enter().append("g").style("fill", d => that.catcolor(that.activeAttribute, d.key));
         catGroups.exit().remove();
         catGroups = catEnter.merge(catGroups)
-        .style("fill", d => that.catcolor(that.activeAttribute, d.key))
+            .style("fill", d => that.catcolor(that.activeAttribute, d.key));
 
-        let catRects = catGroups.selectAll("rect").data(d => d);
+        let catRects = catGroups.selectAll("rect").data(function(d){
+            for(let index = 0; index <d.length; index ++){
+                d[index]["key"] = d.key;
+            }
+            return d;
+        });
         let catRectsEnter = catRects.enter().append("rect")
             .attr("x", d=>d.data.dims.xval)
             .attr("width", d=>d.data.dims.width)
@@ -237,7 +242,7 @@ class AreaChart{
             .style("opacity", 1);
 
         catRects.on("mouseover", function(d) {
-                let label = Object.keys(d.data).find(key => d.data[key] === Math.abs(d[0]-d[1]).toFixed(3));
+                let label = d.key;
                 let percent = (d.data[label]*100).toFixed(1)
                 var xPosition = parseFloat(d3.select(this).attr("x"));
                 var yPosition = parseFloat(d3.select(this).attr("y"));
@@ -250,7 +255,6 @@ class AreaChart{
                     .text(that.months[month] + " " + year + "\n" + label + ": " + percent + "%");
                 // highlight
                 d3.selectAll(".date"+String(d.data.date).replace("/","")).classed("highlightBar", true);
-                // d3.selectAll("rect");
             })
             .on("mouseout", function() {//Remove the tooltip
                 d3.select("#tooltip").remove();
