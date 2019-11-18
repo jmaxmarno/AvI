@@ -35,7 +35,7 @@ class AreaChart{
     // Creates area chart, histogram, and dropdown layout
     draw(){
         // set up for hist
-        let histSvg = d3.select('#areachart').append('svg')
+        let histSvg = d3.select('#areachart').append('svg').attr('id', 'histSVG')
             .attr("width", this.hist.width+(2*this.buffer))
             .attr("height", this.hist.height+this.buffer+5);
         // axis
@@ -57,7 +57,7 @@ class AreaChart{
         histPlot.append("rect")
             .attr("width", this.hist.width)
             .attr("height", this.hist.height)
-            .attr("class", "border")
+            .attr("class", "border");
 
         // set up for area chart
         let areaSVG = d3.select('#areachart').append('svg')
@@ -159,6 +159,33 @@ class AreaChart{
                 d3.select("#tooltip").remove();
                 d3.selectAll(".highlightBar").classed("highlightBar", false);
             });
+        // kernel density
+        let yAxisScale = d3.scaleLinear()
+            .domain([maxCount,0])
+            .range([10, this.hist.height]);
+
+        let plot = d3.select("#histPlot").selectAll("path");
+        // let path = plot.select("#kd");
+        // let path = d3.select("#histPlot").select("path");
+        // let pathEnter = path.enter().append("path");
+        // path.exit().remove();
+        // path = pathEnter.merge(path);
+        plot.remove();
+        d3.select("#histPlot").append("path")
+            .datum(data)
+        // path.attr("class", "kernelDensity")
+            .attr("fill", "LightBlue")
+            .attr("opacity", ".5")
+            .attr("id", "kd")
+            .attr("stroke", "#000")
+            .attr("stroke-width", 1)
+            .attr("stroke-linejoin", "round")
+            .attr("d",  d3.line()
+                .curve(d3.curveBasis)
+                .x(function(d) { 
+                    return d.dims.xval + d.dims.width/2; })
+                .y(function(d) { return yAxisScale(d.count); })
+            );
     }
 
     // updates area chart with given attribute data
@@ -180,8 +207,6 @@ class AreaChart{
             .range([this.area.height,0]);
         let color = d3.scaleOrdinal(d3.schemeCategory10);
         // add bars
-        // let rectWidth = this.area.width/areaData.length;
-        // // console.log(rectWidth)
         let catGroups = plot.selectAll("g").data(series);
         let catEnter = catGroups.enter().append("g").style("fill", d => that.catcolor(that.activeAttribute, d.key));
         catGroups.exit().remove();
@@ -304,16 +329,15 @@ class AreaChart{
           return d
         })
         // console.log(summer);
-        let final = [];
-        for (let index = 0; index < withx.length; index ++) {
-            let dict = withx[index]
-            // console.log(dict)
-            if (summer.indexOf(dict.date) < 0){
-                final.push(dict);
-            }
-        }
-        return final;
-        console.log(final)
+        // let final = [];
+        // for (let index = 0; index < withx.length; index ++) {
+        //     let dict = withx[index]
+        //     // console.log(dict)
+        //     if (summer.indexOf(dict.date) < 0){
+        //         final.push(dict);
+        //     }
+        // }
+        return withx;
     };
 
     // dynamically set width scale
@@ -346,8 +370,8 @@ class AreaChart{
         let month = Object.keys(this.data[year])[0];
         // nominal should be sorted by largest value
         this.sortedLabels["trigger"] = this.sortCategory("trigger");
-        this.sortedLabels["aspect"] = this.sortCategory("aspect");
         // ordinal should be in the right order already
+         this.sortedLabels["aspect"] = Object.keys(this.data[year][month]["aspect"]);
         this.sortedLabels["size"] = Object.keys(this.data[year][month]["size"]);
         this.sortedLabels["elevation"] = Object.keys(this.data[year][month]["elevation"]);
     }

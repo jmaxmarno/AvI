@@ -35,6 +35,7 @@ year ...
 Missing categories are marked "unknown"
 Missing human stats are assumed to be 0
 '''
+aspect_labels =  ["North","Northeast", "East", "Southeast", "South", "Southwest", "West", "Northwest", "unknown"];
 size_labels = ["Small", "Medium", "Large", "unknown"]
 elevation_labels = ["Above 9,500ft", "8,000ft - 9,500ft", 'Below 8,000ft', "unknown"]
 human_stat_labels = ["caught", "carried", "buried_partly", "buried_fully", "injured", "killed"]
@@ -90,7 +91,7 @@ def makeMonthDictTemplate(categorySets):
         monthDict["weak_layer"][weak_layer] = 0
     for size in size_labels:
         monthDict["size"][size] = 0
-    for aspect in categorySets[8]:
+    for aspect in aspect_labels:
         monthDict["aspect"][aspect] = 0
     for elevation in elevation_labels:
         monthDict["elevation"][elevation] = 0
