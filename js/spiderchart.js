@@ -102,9 +102,9 @@ class spiderchart{
       let lineRadial = d3.lineRadial()
       .radius(function(d){return radiusScale(d.prop)})
       .angle(function(d, i){return i*axesSlice})
-      // .curve(d3.curveCatmullRomClosed.alpha(1));
+      .curve(d3.curveCatmullRomClosed.alpha(1));
       // .curve(d3.curveCardinalClosed)
-      .curve(d3.curveLinearClosed)
+      // .curve(d3.curveLinearClosed)
 
 
       //  Wrapper for star/spider blobs
@@ -133,6 +133,7 @@ class spiderchart{
       .attr('class', 'staroutline')
       .attr('d', function(d, i){return lineRadial(d)})
       .style('stroke-width', '2px')
+      .style('stroke-opacity', 0.8)
       .style('stroke', function(d, i){
         if(d[0].type == 'aggregate'){
           console.log('aggregeat')
@@ -156,14 +157,14 @@ class spiderchart{
       .style('fill', function(d, i){
         if(d.type == 'aggregate'){
           console.log('aggregeat')
-          return 'grey'
+          return 'black'
         }else if (d.type == 'selection') {
           console.log('selelction');
-          return 'brown'  
+          return 'brown'
         }
         console.log('d', d.type)
       })
-      .style('fill-opacity', 0.8)
+      .style('fill-opacity', 0.6)
       // TODO: change this to div tooltip
       .append('svg:title')
       .text(function(d, i) {return d3.format(".0%")(d.prop)})
