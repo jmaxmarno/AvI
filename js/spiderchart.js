@@ -6,7 +6,7 @@ class spiderchart{
       // Chart styling parameters
         this.width = 200;
         this.height = 200;
-        this.margin = {top: 40, bottom: 40, left: 50, right: 60};
+        this.margin = {top: 40, bottom: 40, left: 60, right: 60};
         this.innerlevels = 2;
         this.color = colorfunction
       // Chart Data:
@@ -23,9 +23,8 @@ class spiderchart{
     draw(){
       let self = this;
       let sdata = self.activetime.length == 0?[self.getstardata()]:[self.getstardata(), self.getdatedstardata()]
-      // let sdata = self.getstardata()
-      let maxprop = Math.ceil(10*Math.max(...sdata[0].map(d=>d.prop)))/10
-
+      // let maxprop = Math.ceil(10*Math.max(...sdata[0].map(d=>d.prop)))/10
+      let maxprop = Math.ceil(10*Math.max(...sdata.map(function(d){return Math.max(...d.map(p=>p.prop))})))/10
       let axes = self.labels;
       let axesLength = axes.length;
       let axesRadius = self.height / 2
@@ -105,8 +104,7 @@ class spiderchart{
       .curve(d3.curveCatmullRomClosed.alpha(1));
       // .curve(d3.curveCardinalClosed)
       // .curve(d3.curveLinearClosed)
-
-
+      
       //  Wrapper for star/spider blobs
       let starWrap = spider_g.append('g').selectAll(".starwrapper")
       .data(sdata)
@@ -118,31 +116,24 @@ class spiderchart{
         return lineRadial(d)})
       .style('fill', function(d, i){
         if(d[0].type == 'aggregate'){
-          console.log('aggregeat')
           return 'grey'
         }else if (d[0].type == 'selection') {
-          console.log('selelction');
           return 'red'
         }
-        console.log('d', d[0])
       })
       .style('fill-opacity', 0.5)
-
       // star outline
       starWrap.append('path')
       .attr('class', 'staroutline')
       .attr('d', function(d, i){return lineRadial(d)})
       .style('stroke-width', '2px')
-      .style('stroke-opacity', 0.8)
+      .style('stroke-opacity', 0.6)
       .style('stroke', function(d, i){
         if(d[0].type == 'aggregate'){
-          console.log('aggregeat')
           return 'black'
         }else if (d[0].type == 'selection') {
-          console.log('selelction');
           return 'red'
         }
-        console.log('d', d[0])
       })
       .style('fill', 'none')
 
@@ -156,20 +147,17 @@ class spiderchart{
       .attr('cy', function(d, i){return radiusScale(d.prop)*Math.sin(axesSlice*i - Math.PI/2);})
       .style('fill', function(d, i){
         if(d.type == 'aggregate'){
-          console.log('aggregeat')
           return 'black'
         }else if (d.type == 'selection') {
-          console.log('selelction');
           return 'brown'
         }
-        console.log('d', d.type)
       })
-      .style('fill-opacity', 0.6)
+      .style('fill-opacity', 0.5)
       // TODO: change this to div tooltip
       .append('svg:title')
       .text(function(d, i) {return d3.format(".0%")(d.prop)})
     }
-
+      // update function (re-draw)
     update(activeatt, activetime){
       this.activetime = activetime
       this.category = activeatt;
@@ -178,6 +166,7 @@ class spiderchart{
       this.labels = Object.keys(this.data[startYear][startMonth][this.category]);
       this.draw()
     }
+    // Get aggregate star plot data for all data points
     getstardata(){
       let self = this;
       let grandtotal = 0
@@ -209,11 +198,10 @@ class spiderchart{
         return ddict
         // return cattotals[key].count
       })
-      console.log('starlist', starlist);
       return starlist
     }
+    // Get star data for selected date range
     getdatedstardata(){
-
       let self = this;
       let grandtotal = 0
       let cattotals = []
@@ -250,10 +238,8 @@ class spiderchart{
         // return cattotals[key].count
       })
 
-      console.log(starlist.map(d=>d.category));
+      // console.log(starlist.map(d=>d.category));
       return starlist
-
-
     }
 
 // Adapted from:
