@@ -2,15 +2,15 @@ class AreaChart{
     /**
      * Creates a Bubble plot Object
      */
-    constructor(data, histData, activeAttribute, activeTime, updateAttribute, updateTime) {
+    constructor(data, histData, activeAttribute, activeTime, updateAttribute, updateTime, colorfunction) {
         this.data = data;
         this.histData = histData
         this.activeAttribute = activeAttribute;
         this.activeTime = activeTime;
         this.updateAttribute = updateAttribute;
+        this.catcolor = colorfunction;
         // this.updateTime = updateTime;
         this.showSummer = true;
-
         this.hist = {'width':  1400,'height' : 50};
         this.area = {'width': 1400,'height': 200};
         this.buffer = 30
@@ -19,7 +19,6 @@ class AreaChart{
         this.attributes = ["trigger", "aspect", "size", "elevation"];
         this.sortedLabels = {};
         this.setSortedLabels();
-
         this.draw();
     };
 
@@ -27,12 +26,10 @@ class AreaChart{
         this.activeAttribute = attribute;
         this.updateAreaChart();
     }
-
     setTime(activeTime){
         this.activeTime = activeTime;
         this.updateHistogram();
         this.updateAreaChart();
-
     }
 
     // Creates area chart, histogram, and dropdown layout
@@ -166,7 +163,7 @@ class AreaChart{
 
     // updates area chart with given attribute data
     updateAreaChart(){
-      console.log('Update Area Chart')
+      let that = this;
         let plot = d3.select("#areaPlot")
         //define series
         let areaData = this.getAreaData();
@@ -186,9 +183,11 @@ class AreaChart{
         // let rectWidth = this.area.width/areaData.length;
         // // console.log(rectWidth)
         let catGroups = plot.selectAll("g").data(series);
-        let catEnter = catGroups.enter().append("g").style("fill", d => color(d.key));
+        let catEnter = catGroups.enter().append("g").style("fill", d => that.catcolor(that.activeAttribute, d.key));
         catGroups.exit().remove();
-        catGroups = catEnter.merge(catGroups);
+        catGroups = catEnter.merge(catGroups)
+        .style("fill", d => that.catcolor(that.activeAttribute, d.key))
+
         let catRects = catGroups.selectAll("rect").data(d => d);
         let catRectsEnter = catRects.enter().append("rect")
             .attr("x", d=>d.data.dims.xval)
@@ -212,7 +211,6 @@ class AreaChart{
             })
             .style("opacity", 1);
 
-        let that = this;
         catRects.on("mouseover", function(d) {
                 let label = Object.keys(d.data).find(key => d.data[key] === Math.abs(d[0]-d[1]).toFixed(3));
                 let percent = (d.data[label]*100).toFixed(1)
@@ -245,10 +243,8 @@ class AreaChart{
         let activeyears = [];
         // Date range stuff
         if(this.activeTime.length){
-          console.log('activetime', this.activeTime)
           activeyears = this.activeTime.map(d=>d.year)
           activemonthscount = this.activeTime.map(d=>d.months.length).reduce((a,b)=> a+b, 0)
-          console.log('selectedyears', activeyears, activemonthscount)
         }
         let summer = [];
 
@@ -286,7 +282,6 @@ class AreaChart{
         // console.log('areaData',areaData)
         let total = areaData.length
         let widths = this.widthscale(total, activemonthscount, this.area.width)
-
         let dated = areaData.map(function(dd, i){
           let ddate = dd.date.split("/")
           let mmonth = ddate[0]
@@ -336,7 +331,7 @@ class AreaChart{
         let newout = 1-newsel
         let selwidth = width*newsel/selection
         let outwidth = width*newout/(total-selection)
-        console.log('widths', selection, " / ", total, "__width", width, "__sel, out", selwidth, outwidth)
+        // console.log('widths', selection, " / ", total, "__width", width, "__sel, out", selwidth, outwidth)
         return [selwidth, outwidth]
       }
       catch{

@@ -2,19 +2,17 @@ class spiderchart{
     /**
      * Creates a Bubble plot Object
      */
-    constructor(data, histData, category, activeTime) {
+    constructor(data, category, colorfunction) {
       // Chart styling parameters
-      console.log(category);
-        this.width = 250;
-        this.height = 250;
+        this.width = 200;
+        this.height = 200;
         this.margin = {top: 40, bottom: 40, left: 50, right: 60};
         this.innerlevels = 2;
-        this.color = d3.scaleOrdinal(d3.schemeCategory10);
+        this.color = colorfunction
       // Chart Data:
         this.data = data;
-        this.histData = histData;
         this.category =  category;
-        this.activeTime = activeTime;
+        this.activetime = [];
 
         let startYear = Object.keys(this.data)[0];
         let startMonth = Object.keys(this.data[startYear])[0];
@@ -24,8 +22,9 @@ class spiderchart{
 
     draw(){
       let self = this;
-      let sdata = self.getstardata()
-      let maxprop = Math.ceil(10*Math.max(...sdata.map(d=>d.prop)))/10
+      let sdata = self.activetime.length == 0?[self.getstardata()]:[self.getstardata(), self.getdatedstardata()]
+      // let sdata = self.getstardata()
+      let maxprop = Math.ceil(10*Math.max(...sdata[0].map(d=>d.prop)))/10
 
       let axes = self.labels;
       let axesLength = axes.length;
@@ -55,6 +54,7 @@ class spiderchart{
       .style('fill', 'gray')
       .style('stroke', 'black')
       .style('fill-opacity', '0.2')
+      .style('stroke-opacity', '0.5')
       // inner circle labels
       axesWrap.selectAll('.axislabel').data(d3.range(1,(self.innerlevels+1)).reverse())
       .enter().append('text')
@@ -79,22 +79,24 @@ class spiderchart{
         return radiusScale(maxprop)*Math.sin(axesSlice*i - Math.PI/2);
       })
       .attr('class', 'spideraxis')
-      .style('stroke', 'white')
+      .style('stroke', function(d, i){
+        return self.color(self.category, d)})
       .style('stroke-width', '2px')
       .style('stroke-opacity', '0.4')
 
       // Axis Labels:
       axesLines.append('text')
       .text(d=>d)
-      .style("font-size", "10px")
+      .style("font-size", "12px")
       // .attr('class', 'spideraxis')
       .attr("text-anchor", "middle")
       .attr("dy", "0.35em")
+      .style('fill', function(d, i){return self.color(self.category, d)})
       .attr('x', function(d, i){
-        return radiusScale(maxprop*1.2)*Math.cos(axesSlice*i - Math.PI/2);
+        return radiusScale(maxprop*1.3)*Math.cos(axesSlice*i - Math.PI/2);
       })
       .attr('y', function(d, i){
-        return radiusScale(maxprop*1.2)*Math.sin(axesSlice*i - Math.PI/2);
+        return radiusScale(maxprop*1.3)*Math.sin(axesSlice*i - Math.PI/2);
       })
       // TODO: move radial line function up when stable
       let lineRadial = d3.lineRadial()
@@ -107,21 +109,40 @@ class spiderchart{
 
       //  Wrapper for star/spider blobs
       let starWrap = spider_g.append('g').selectAll(".starwrapper")
-      .data([sdata])
+      .data(sdata)
       .enter().append('g')
       // .attr('class', '')
       starWrap.append('path')
       // .attr('class', '')
       .attr('d', function(d,i){
         return lineRadial(d)})
-      .style('fill', 'purple')
+      .style('fill', function(d, i){
+        if(d[0].type == 'aggregate'){
+          console.log('aggregeat')
+          return 'grey'
+        }else if (d[0].type == 'selection') {
+          console.log('selelction');
+          return 'red'
+        }
+        console.log('d', d[0])
+      })
+      .style('fill-opacity', 0.5)
 
       // star outline
       starWrap.append('path')
       .attr('class', 'staroutline')
       .attr('d', function(d, i){return lineRadial(d)})
       .style('stroke-width', '2px')
-      .style('stroke', 'black')
+      .style('stroke', function(d, i){
+        if(d[0].type == 'aggregate'){
+          console.log('aggregeat')
+          return 'black'
+        }else if (d[0].type == 'selection') {
+          console.log('selelction');
+          return 'red'
+        }
+        console.log('d', d[0])
+      })
       .style('fill', 'none')
 
       // intercept cicles
@@ -132,14 +153,24 @@ class spiderchart{
       .attr('r', '3')
       .attr('cx', function(d, i){return radiusScale(d.prop)*Math.cos(axesSlice*i - Math.PI/2);})
       .attr('cy', function(d, i){return radiusScale(d.prop)*Math.sin(axesSlice*i - Math.PI/2);})
-      .style('fill', 'DodgerBlue')
+      .style('fill', function(d, i){
+        if(d.type == 'aggregate'){
+          console.log('aggregeat')
+          return 'grey'
+        }else if (d.type == 'selection') {
+          console.log('selelction');
+          return 'brown'  
+        }
+        console.log('d', d.type)
+      })
       .style('fill-opacity', 0.8)
       // TODO: change this to div tooltip
       .append('svg:title')
       .text(function(d, i) {return d3.format(".0%")(d.prop)})
     }
 
-    update(activeatt){
+    update(activeatt, activetime){
+      this.activetime = activetime
       this.category = activeatt;
       let startYear = Object.keys(this.data)[0];
       let startMonth = Object.keys(this.data[startYear])[0];
@@ -170,15 +201,59 @@ class spiderchart{
       let starlist = Object.keys(cattotals).map(function(key){
         cattotals[key].prop = cattotals[key].count/grandtotal
         let ddict = {}
+        ddict.type = 'aggregate';
         ddict.category = key;
         ddict.count = cattotals[key].count;
         ddict.prop = cattotals[key].prop;
         return ddict
         // return cattotals[key].count
       })
+      console.log('starlist', starlist);
       return starlist
     }
+    getdatedstardata(){
 
+      let self = this;
+      let grandtotal = 0
+      let cattotals = []
+      self.labels.map(function(d){
+        cattotals[d] = {}
+        cattotals[d].count = 0
+        cattotals[d].prop = 0
+      })
+      let activeyears = this.activetime.map(d=>d.year)
+      // console.log('spider active years', activeyears);
+      for (let yyear in self.data){
+        if(activeyears.includes(yyear)){
+          let selmonths = self.activetime.filter(d=>d.year==yyear)[0].months
+          for(let month in self.data[yyear]){
+            if(selmonths.includes(parseInt(month))){
+              grandtotal += self.data[yyear][month].total_count
+              for(let cat in self.data[yyear][month][self.category]){
+                // console.log('cat', cat);
+                // console.log('ladf', self.data[year][month][self.category]);
+                cattotals[cat].count += self.data[yyear][month][self.category][cat]
+              }
+            }
+          }
+        }
+      }
+      let starlist = Object.keys(cattotals).map(function(key){
+        cattotals[key].prop = cattotals[key].count/grandtotal
+        let ddict = {}
+        ddict.type = 'selection';
+        ddict.category = key;
+        ddict.count = cattotals[key].count;
+        ddict.prop = cattotals[key].prop;
+        return ddict
+        // return cattotals[key].count
+      })
+
+      console.log(starlist.map(d=>d.category));
+      return starlist
+
+
+    }
 
 // Adapted from:
 // http://bl.ocks.org/nbremer/raw/21746a9668ffdf6d8242/

@@ -129,7 +129,6 @@ class yeargrid {
         return d.year == y
       }).map(m=>m.nmonth)
       // get the index of the months from the months array defined initially
-      console.log(y)
       return {year: y, months: monthss.map(mm=>that.normmonths.indexOf(mm)+1)}
     })
     // TODO: trigger update time
