@@ -32,12 +32,12 @@ year{
 year ...
 }
 
-Missing categories are marked "unknown"
+Missing categories are marked "Unknown"
 Missing human stats are assumed to be 0
 '''
-aspect_labels =  ["North","Northeast", "East", "Southeast", "South", "Southwest", "West", "Northwest", "unknown"];
-size_labels = ["Small", "Medium", "Large", "unknown"]
-elevation_labels = ["Above 9,500ft", "8,000ft - 9,500ft", 'Below 8,000ft', "unknown"]
+aspect_labels =  ["North","Northeast", "East", "Southeast", "South", "Southwest", "West", "Northwest", "Unknown"];
+size_labels = ["Small", "Medium", "Large", "Unknown"]
+elevation_labels = ["Above 9,500ft", "8,000ft - 9,500ft", 'Below 8,000ft', "Unknown"]
 human_stat_labels = ["caught", "carried", "buried_partly", "buried_fully", "injured", "killed"]
 
 def fix_missing_values(row):
@@ -45,7 +45,7 @@ def fix_missing_values(row):
     for index in range(len(row)):
         if not row[index]:
             if index < 11:
-                fixed_row[index] = "unknown"
+                fixed_row[index] = "Unknown"
             else:
                 fixed_row[index] = 0
         else:
@@ -150,7 +150,7 @@ def updateMonthDict(monthDict, row):
     return monthDict
 
 def get_size(depth,width,verticle):
-    if width != 'unknown':
+    if width != 'Unknown':
         if type(width) != 'int':
             width = int(width.replace(',', '').replace("'","").replace('"',''))
         if width > 600:
@@ -160,10 +160,10 @@ def get_size(depth,width,verticle):
         else:
             return 'Small'
     else:
-        return 'unknown'
+        return 'Unknown'
 
 def get_elevation(elevation):
-    if elevation != 'unknown':
+    if elevation != 'Unknown':
         if type(elevation) != 'int':
             elevation = int(elevation.replace(',', '').replace("'","").replace('"',''))
         if elevation > 9500:
@@ -173,7 +173,7 @@ def get_elevation(elevation):
         else:
             return 'Below 8,000ft'
     else:
-        return 'unknown'
+        return 'Unknown'
 
 def debug(avy_dict, test_category):
     for key,value in avy_dict.items():
