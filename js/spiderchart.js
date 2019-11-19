@@ -101,10 +101,10 @@ class spiderchart{
       let lineRadial = d3.lineRadial()
       .radius(function(d){return radiusScale(d.prop)})
       .angle(function(d, i){return i*axesSlice})
-      .curve(d3.curveCatmullRomClosed.alpha(1));
+      // .curve(d3.curveCatmullRomClosed.alpha(1));
       // .curve(d3.curveCardinalClosed)
-      // .curve(d3.curveLinearClosed)
-      
+      .curve(d3.curveLinearClosed)
+
       //  Wrapper for star/spider blobs
       let starWrap = spider_g.append('g').selectAll(".starwrapper")
       .data(sdata)
