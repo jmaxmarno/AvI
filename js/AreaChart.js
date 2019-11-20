@@ -11,7 +11,7 @@ class AreaChart{
         this.catcolor = colorfunction;
         // this.updateTime = updateTime;
         this.showSummer = true;
-        this.hist = {'width':  1400,'height' : 50};
+        this.hist = {'width':  1400,'height' : 100};
         this.area = {'width': 1400,'height': 200};
         this.buffer = 30
         this.months = {1:"January", 2:"February", 3:"March", 4:"April", 5:"May", 6:"June",
@@ -58,6 +58,16 @@ class AreaChart{
             .attr("width", this.hist.width)
             .attr("height", this.hist.height)
             .attr("class", "border");
+        // kernal density 
+        histPlot.append("path")
+            .attr("id", "kd")
+            .attr("fill", "LightBlue")
+            .attr("opacity", "1")
+            .attr("id", "kd")
+            .attr("stroke", "#000")
+            .attr("stroke-width", 1)
+            .attr("stroke-linejoin", "round")
+            .attr("d", "M 0 0 L 0 0 L 0 0 0 0");
 
         // set up for area chart
         let areaSVG = d3.select('#areachart').append('svg')
@@ -77,7 +87,7 @@ class AreaChart{
         let aWrap = dropdownWrap.append('div').classed('dropdown-panel', true);
         aWrap.append('div').classed('d-label', true)
             .append('text')
-            .text('Attribute');
+            .text('Characteristic of Interest');
         aWrap.append('div').attr('id', 'dropdown_a').classed('dropdown', true).append('div').classed('dropdown-content', true)
             .append('select');
 
@@ -98,6 +108,20 @@ class AreaChart{
         let yHistScale = d3.scaleLinear()
             .domain([0,maxCount])
             .range([0, this.hist.height-10]);
+         // kernel density
+        let yAxisScale = d3.scaleLinear()
+            .domain([maxCount,0])
+            .range([10, this.hist.height]);
+        let plot = d3.select("#histPlot");
+        let lineGenerator = d3.line()
+            .curve(d3.curveBasis)
+            .x(function(d) { return d.dims.xval + d.dims.width/2; })
+            .y(function(d) { return yAxisScale(d.count); })
+        let kd = plot.select("path#kd");
+            kd.transition()
+                .duration(500)
+                .attr('d', lineGenerator(data));
+        // bars
         let barGroups = d3.select("#histPlot").selectAll("g").data(data);
         let barEnter = barGroups.enter().append("g");
         barEnter.append("line");
@@ -135,6 +159,7 @@ class AreaChart{
             .attr('y', (d) => this.hist.height - yHistScale(d.count))
             .attr('height', (d) => yHistScale(d.count))
             .attr("width", d=> d.dims.width)
+            .style("opacity", 0.5)
             .attr("class", function(d){
                 return "histBar date"+String(d.date).replace("/","");
             });
@@ -159,33 +184,6 @@ class AreaChart{
                 d3.select("#tooltip").remove();
                 d3.selectAll(".highlightBar").classed("highlightBar", false);
             });
-        // kernel density
-        let yAxisScale = d3.scaleLinear()
-            .domain([maxCount,0])
-            .range([10, this.hist.height]);
-
-        let plot = d3.select("#histPlot").selectAll("path");
-        // let path = plot.select("#kd");
-        // let path = d3.select("#histPlot").select("path");
-        // let pathEnter = path.enter().append("path");
-        // path.exit().remove();
-        // path = pathEnter.merge(path);
-        plot.remove();
-        d3.select("#histPlot").append("path")
-            .datum(data)
-        // path.attr("class", "kernelDensity")
-            .attr("fill", "LightBlue")
-            .attr("opacity", ".5")
-            .attr("id", "kd")
-            .attr("stroke", "#000")
-            .attr("stroke-width", 1)
-            .attr("stroke-linejoin", "round")
-            .attr("d",  d3.line()
-                .curve(d3.curveBasis)
-                .x(function(d) { 
-                    return d.dims.xval + d.dims.width/2; })
-                .y(function(d) { return yAxisScale(d.count); })
-            );
     }
 
     // updates area chart with given attribute data
@@ -375,7 +373,7 @@ class AreaChart{
         // nominal should be sorted by largest value
         this.sortedLabels["trigger"] = this.sortCategory("trigger");
         // ordinal should be in the right order already
-         this.sortedLabels["aspect"] = Object.keys(this.data[year][month]["aspect"]);
+        this.sortedLabels["aspect"] = Object.keys(this.data[year][month]["aspect"]);
         this.sortedLabels["size"] = Object.keys(this.data[year][month]["size"]);
         this.sortedLabels["elevation"] = Object.keys(this.data[year][month]["elevation"]);
     }
