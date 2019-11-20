@@ -162,7 +162,11 @@ class AreaChart{
             .attr('y', (d) => this.hist.height - yHistScale(d.count))
             .attr('height', (d) => yHistScale(d.count))
             .attr("width", d=> d.dims.width)
-            .style("opacity", 0.5)
+            .style("opacity", function(d){
+                if(d.dims.zoomed == "in"){ return 0.5; }
+                if(d.dims.zoomed == "noZoom"){ return 0.5; }
+                else{ return 0.25; }
+            })
             .attr("class", function(d){
                 return "histBar, date"+String(d.date).replace("/","");
             });
@@ -183,7 +187,9 @@ class AreaChart{
                 // highlight
                 d3.selectAll(".date"+String(month)+String(year)).classed("highlightBar", true);
                 d3.select('#areaPlot').selectAll('rect').style("opacity", 0.5);
-                d3.selectAll(".date"+String(month)+String(year)).style("opacity",1);
+                d3.select('#areaPlot').selectAll(".date"+String(month)+String(year)).style("opacity",1);
+                d3.select('#histPlot').selectAll('rect').style("opacity", 0.25);
+                d3.select('#histPlot').selectAll(".date"+String(month)+String(year)).style("opacity",0.5);
             })
             .on("mouseout", function() {//Remove the tooltip
                 d3.select("#tooltip").remove();
@@ -201,9 +207,7 @@ class AreaChart{
         let areaData = this.getAreaData();
         areaData = areaData.filter(function(d){return d.count != 0;});
         let columns = Object.keys(areaData[0]);
-        // console.log('columns', columns.slice(2))
         let series = d3.stack().keys(columns.slice(3))(areaData); // don't include date or dimensions
-        // console.log('series', series)
         // bar scales
         let xBarScale = d3.scaleLinear()
             .domain([0, areaData.length])
@@ -243,10 +247,21 @@ class AreaChart{
             .attr("y", d=> yBarScale(d[1]))
             .attr("height",d=> yBarScale(d[0]) - yBarScale(d[1]))
             .attr("class", function(d){
-                return "areaBar, date"+String(d.data.date).replace("/","");
+                if(d.data.dims.zoomed == "in"){
+                     return "areaBar, in, date"+String(d.data.date).replace("/","");
+                }
+                if(d.data.dims.zoomed == "noZoom"){
+                     return "areaBar, in, date"+String(d.data.date).replace("/","");
+                }
+                else{
+                    return "areaBar, out, date"+String(d.data.date).replace("/","");
+                }
             })
-            .style("opacity", 1);
-
+            .style("opacity", function(d){
+                if(d.data.dims.zoomed == "in"){ return 1; }
+                if(d.data.dims.zoomed == "noZoom"){ return 1; }
+                else{ return 0.5; }
+            });
         catRects.on("mouseover", function(d) {
                 let label = d.key;
                 let percent = (d.data[label]*100).toFixed(1)
@@ -262,7 +277,9 @@ class AreaChart{
                 // highlight
                 d3.selectAll(".date"+String(d.data.date).replace("/","")).classed("highlightBar", true);
                 d3.select('#areaPlot').selectAll('rect').style("opacity", 0.5);
-                d3.selectAll(".date"+String(d.data.date).replace("/","")).style("opacity",1);
+                d3.select('#areaPlot').selectAll(".date"+String(d.data.date).replace("/","")).style("opacity",1);
+                d3.select('#histPlot').selectAll('rect').style("opacity", 0.25);
+                d3.select('#histPlot').selectAll(".date"+String(d.data.date).replace("/","")).style("opacity",0.5);
             })
             .on("mouseout", function() {//Remove the tooltip
                 d3.select("#tooltip").remove();
@@ -270,6 +287,8 @@ class AreaChart{
                 d3.select('#areaPlot').selectAll('rect').style("opacity", 1);
                 d3.select('#histPlot').selectAll('rect').style("opacity", 0.5);
             });
+
+        d3.select('#histPlot').selectAll('rect').selectAll(".zoomed_out").style("opacity", 0.5);
     }
 
     // gets area chart data with specified category
@@ -324,12 +343,21 @@ class AreaChart{
           if(activeyears.includes(yyear)){
             let selmonths = that.activeTime.filter(d=>d.year==yyear)[0].months
             if(selmonths.includes(parseInt(mmonth))){
-              dd.dims.width = widths[0]
+              dd.dims.width = widths[0];
+              dd.dims.zoomed = "in";
             }else{
-              dd.dims.width = widths[1]
+              dd.dims.width = widths[1];
+              dd.dims.zoomed = "out";
             }
-          }else{
-            dd.dims.width = widths[1]
+          }
+          else{
+            dd.dims.width = widths[1];
+            if (activemonthscount == 0){
+                dd.dims.zoomed = "noZoom";
+            }
+            else{
+                dd.dims.zoomed = "out";
+            }
           }
           return dd
         })
@@ -338,6 +366,7 @@ class AreaChart{
           d.dims.xval = widthmap.slice(0, i).reduce((a,b)=>a+b,0)
           return d
         })
+        console.log(withx);
         return withx;
     };
 
