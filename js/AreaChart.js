@@ -118,10 +118,13 @@ class AreaChart{
             .x(function(d) { return d.dims.xval + d.dims.width/2; })
             .y(function(d) { return yAxisScale(d.count); })
         let kd = plot.select("path#kd");
-            kd.transition()
+            kd.attr('d', lineGenerator(data))
+                .style("opacity", 0)
+                .transition()
                 .duration(500)
-                .attr('d', lineGenerator(data));
+                .style("opacity", 1);
         // bars
+        data = data.filter(function(d){return d.count != 0;});
         let barGroups = d3.select("#histPlot").selectAll("g").data(data);
         let barEnter = barGroups.enter().append("g");
         barEnter.append("line");
@@ -188,10 +191,11 @@ class AreaChart{
 
     // updates area chart with given attribute data
     updateAreaChart(){
-      let that = this;
+        let that = this;
         let plot = d3.select("#areaPlot")
         //define series
         let areaData = this.getAreaData();
+        areaData = areaData.filter(function(d){return d.count != 0;});
         let columns = Object.keys(areaData[0]);
         // console.log('columns', columns.slice(2))
         let series = d3.stack().keys(columns.slice(3))(areaData); // don't include date or dimensions
@@ -273,8 +277,6 @@ class AreaChart{
           activeyears = this.activeTime.map(d=>d.year)
           activemonthscount = this.activeTime.map(d=>d.months.length).reduce((a,b)=> a+b, 0)
         }
-        let summer = [];
-
         for (let year in this.data) {
             for (let month in this.data[year]) {
                 let date = month +'/'+ year;
@@ -298,7 +300,6 @@ class AreaChart{
                 if (allZeros == true){
                     if (that.showSummer == true){
                         areaData.push(dict);
-                        summer.push(dict.date)
                     }
                 }
                 else{
@@ -330,15 +331,6 @@ class AreaChart{
           d.dims.xval = widthmap.slice(0, i).reduce((a,b)=>a+b,0)
           return d
         })
-        // console.log(summer);
-        // let final = [];
-        // for (let index = 0; index < withx.length; index ++) {
-        //     let dict = withx[index]
-        //     // console.log(dict)
-        //     if (summer.indexOf(dict.date) < 0){
-        //         final.push(dict);
-        //     }
-        // }
         return withx;
     };
 
