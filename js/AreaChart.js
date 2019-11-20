@@ -164,7 +164,7 @@ class AreaChart{
             .attr("width", d=> d.dims.width)
             .style("opacity", 0.5)
             .attr("class", function(d){
-                return "histBar date"+String(d.date).replace("/","");
+                return "histBar, date"+String(d.date).replace("/","");
             });
         let rects = d3.select("#histPlot").selectAll("g").selectAll("rect");
         rects.on("mouseover", function(d) {
@@ -182,10 +182,14 @@ class AreaChart{
                     });
                 // highlight
                 d3.selectAll(".date"+String(month)+String(year)).classed("highlightBar", true);
+                d3.select('#areaPlot').selectAll('rect').style("opacity", 0.5);
+                d3.selectAll(".date"+String(month)+String(year)).style("opacity",1);
             })
             .on("mouseout", function() {//Remove the tooltip
                 d3.select("#tooltip").remove();
                 d3.selectAll(".highlightBar").classed("highlightBar", false);
+                d3.select('#areaPlot').selectAll('rect').style("opacity", 1);
+                d3.select('#histPlot').selectAll('rect').style("opacity", 0.5);
             });
     }
 
@@ -239,7 +243,7 @@ class AreaChart{
             .attr("y", d=> yBarScale(d[1]))
             .attr("height",d=> yBarScale(d[0]) - yBarScale(d[1]))
             .attr("class", function(d){
-                return "date"+String(d.data.date).replace("/","");
+                return "areaBar, date"+String(d.data.date).replace("/","");
             })
             .style("opacity", 1);
 
@@ -257,11 +261,14 @@ class AreaChart{
                     .text(that.months[month] + " " + year + "\n" + label + ": " + percent + "%");
                 // highlight
                 d3.selectAll(".date"+String(d.data.date).replace("/","")).classed("highlightBar", true);
+                d3.select('#areaPlot').selectAll('rect').style("opacity", 0.5);
+                d3.selectAll(".date"+String(d.data.date).replace("/","")).style("opacity",1);
             })
             .on("mouseout", function() {//Remove the tooltip
                 d3.select("#tooltip").remove();
                 d3.selectAll(".highlightBar").classed("highlightBar", false);
-
+                d3.select('#areaPlot').selectAll('rect').style("opacity", 1);
+                d3.select('#histPlot').selectAll('rect').style("opacity", 0.5);
             });
     }
 

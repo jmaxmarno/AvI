@@ -129,12 +129,11 @@ div.dropdown-wrapper {
 
 rect.highlightBar {
     stroke : LightBlue;
-    stroke-width : 4;
+    stroke-width : 2;
+    opacity: 1;
 }
 text.spideraxis{
   font-size: 11px;
   text-align: center;
-
-
 
 }
