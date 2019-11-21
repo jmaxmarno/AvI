@@ -33,7 +33,7 @@ text {
 div.dropdown-wrapper {
     display: inline-block;
     margin-left: 15px;
-    width: 200px;
+    width: 500px;
     height: 100px;
     padding: 2px;
 }
@@ -43,7 +43,6 @@ div.dropdown-wrapper {
 }
 
 .d-label {
-    width: 1%7;
     display: inline-block;
     float: left;
     padding-right: 5px;
@@ -51,6 +50,7 @@ div.dropdown-wrapper {
 
 .select-selected {
     background-color: DodgerBlue;
+    font-size:40px;
 }
 
 /*style the arrow inside the select element:*/
@@ -135,4 +135,13 @@ text.spideraxis{
   font-size: 11px;
   text-align: center;
 
+}
+
+text.footnote{
+    font-size: 14px;
+    text-align: center;
+}
+
+text.dropdown_option{
+    font-size: 40px;
 }

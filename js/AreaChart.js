@@ -42,7 +42,7 @@ class AreaChart{
         let maxCount = d3.max(this.histData, (d) => d.count);
         let yAxisScale = d3.scaleLinear()
             .domain([maxCount,0])
-            .range([10, this.hist.height]);
+            .range([5, this.hist.height]);
         let yAxis = d3.axisLeft();
         yAxis.scale(yAxisScale)
             .ticks(3);
@@ -80,6 +80,13 @@ class AreaChart{
             .attr("width", this.area.width)
             .attr("height", this.area.height)
             .attr("class", "border");
+        let footnoteSVG = d3.select('#areachart').append('svg')
+            .attr("width", this.area.width + (2*this.buffer))
+            .attr("height", this.buffer);
+        let footnote = footnoteSVG.append("g").attr("transform", "translate("+this.buffer/2+","+this.buffer/2+")");
+        footnote.append('text')
+                .attr("class", "footnote")
+                .text("The histogram above shows the count of avalanche observations binned by month and stacked bar chart below that shows the relative proportions of the selected observation characteristic. Hover over the bars for more information.");
 
         // set up for drop down
 
@@ -87,7 +94,7 @@ class AreaChart{
         let aWrap = dropdownWrap.append('div').classed('dropdown-panel', true);
         aWrap.append('div').classed('d-label', true)
             .append('text')
-            .text('Characteristic of Interest');
+            .text('Characteristic of Interest:  ');
         aWrap.append('div').attr('id', 'dropdown_a').classed('dropdown', true).append('div').classed('dropdown-content', true)
             .append('select');
 
@@ -107,11 +114,11 @@ class AreaChart{
         let maxCount = d3.max(this.histData, (d) => d.count);
         let yHistScale = d3.scaleLinear()
             .domain([0,maxCount])
-            .range([0, this.hist.height-10]);
+            .range([0, this.hist.height-5]);
          // kernel density
         let yAxisScale = d3.scaleLinear()
             .domain([maxCount,0])
-            .range([10, this.hist.height]);
+            .range([5, this.hist.height]);
         let plot = d3.select("#histPlot");
         let lineGenerator = d3.line()
             .curve(d3.curveBasis)
@@ -163,12 +170,16 @@ class AreaChart{
             .attr('height', (d) => yHistScale(d.count))
             .attr("width", d=> d.dims.width)
             .style("opacity", function(d){
-                if(d.dims.zoomed == "in"){ return 0.5; }
-                if(d.dims.zoomed == "noZoom"){ return 0.5; }
+                if(d.dims.zoomed == "in" || d.dims.zoomed == "noZoom"){ return 0.5; }
                 else{ return 0.25; }
             })
             .attr("class", function(d){
-                return "histBar, date"+String(d.date).replace("/","");
+                if(d.dims.zoomed == "in" || d.dims.zoomed == "noZoom"){
+                     return "histBar in date"+String(d.date).replace("/","");
+                }
+                else{
+                    return "histBar out date"+String(d.date).replace("/","");
+                }
             });
         let rects = d3.select("#histPlot").selectAll("g").selectAll("rect");
         rects.on("mouseover", function(d) {
@@ -194,8 +205,8 @@ class AreaChart{
             .on("mouseout", function() {//Remove the tooltip
                 d3.select("#tooltip").remove();
                 d3.selectAll(".highlightBar").classed("highlightBar", false);
-                d3.select('#areaPlot').selectAll('rect').style("opacity", 1);
-                d3.select('#histPlot').selectAll('rect').style("opacity", 0.5);
+                d3.select('#areaPlot').selectAll('.in').style("opacity", 1);
+                d3.select('#histPlot').selectAll('.in').style("opacity", 0.5);
             });
     }
 
@@ -247,19 +258,15 @@ class AreaChart{
             .attr("y", d=> yBarScale(d[1]))
             .attr("height",d=> yBarScale(d[0]) - yBarScale(d[1]))
             .attr("class", function(d){
-                if(d.data.dims.zoomed == "in"){
-                     return "areaBar, in, date"+String(d.data.date).replace("/","");
-                }
-                if(d.data.dims.zoomed == "noZoom"){
-                     return "areaBar, in, date"+String(d.data.date).replace("/","");
+                if(d.data.dims.zoomed == "in" || d.data.dims.zoomed == "noZoom"){
+                     return "areaBar in date"+String(d.data.date).replace("/","");
                 }
                 else{
-                    return "areaBar, out, date"+String(d.data.date).replace("/","");
+                    return "areaBar out date"+String(d.data.date).replace("/","");
                 }
             })
             .style("opacity", function(d){
-                if(d.data.dims.zoomed == "in"){ return 1; }
-                if(d.data.dims.zoomed == "noZoom"){ return 1; }
+                if(d.data.dims.zoomed == "in" || d.data.dims.zoomed == "noZoom"){ return 1; }
                 else{ return 0.5; }
             });
         catRects.on("mouseover", function(d) {
@@ -284,8 +291,8 @@ class AreaChart{
             .on("mouseout", function() {//Remove the tooltip
                 d3.select("#tooltip").remove();
                 d3.selectAll(".highlightBar").classed("highlightBar", false);
-                d3.select('#areaPlot').selectAll('rect').style("opacity", 1);
-                d3.select('#histPlot').selectAll('rect').style("opacity", 0.5);
+                d3.select('#areaPlot').selectAll('.in').style("opacity", 1);
+                d3.select('#histPlot').selectAll('.in').style("opacity", 0.5);
             });
 
         d3.select('#histPlot').selectAll('rect').selectAll(".zoomed_out").style("opacity", 0.5);
@@ -453,6 +460,7 @@ class AreaChart{
             .append('option')
             .attr('value', (d, i) => d.indicator);
         optionsEnter.append('text')
+            .attr("class", "dropdown_option")
             .text((d, i) => d.indicator_name.charAt(0).toUpperCase() + d.indicator_name.slice(1));
         options = optionsEnter.merge(options);
 
