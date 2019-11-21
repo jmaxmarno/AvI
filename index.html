@@ -30,12 +30,13 @@
 
     <div class="tile is-ancestor">
       <div class="tile is-parent ">
-        <div class="tile is-child is-parent is-4 has-text-centered box ">
+        <div class="tile is-child is-parent is-4 has-text-centered box " id="yearbox">
           <p class="subtitle">
           <strong>Select time region of interest</strong>
           </p>
-          <div class="tile is-medium is-child notification box" id="yeargrid">
-          </div>
+          <svg id="yeargrid">
+          </svg>
+          <br>
           <input type="checkbox" id="summerCheckBox" name="summerCheckBox" checked>
           <label for="summerCheckBox">Show months with no reported observations.</label>
         </div>
@@ -43,11 +44,11 @@
         <div class="tile is-medium is-child is-3 box" id="dropdown">
           <div class = "dropdown-wrapper" id = "dropdown-wrapper">
           </div>
-          <div class="tile is-child notification box has-text-centered" id="starplot">
-          </div>
+          <svg id="spidersvg">
+          </svg>
         </div>
 
-        <div class="tile is-child notification has-text-centered box" id="story">
+        <div class="tile is-child notification is-5 box" id="story">
         </div>
       </div>
     </div>

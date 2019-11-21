@@ -26,12 +26,14 @@ class yeargrid {
     })
 
     const margin = {top:40, bottom:0, left:60, right:40};
-    const width = 500 - margin.left - margin.right
-    const height = 300 - margin.top - margin.bottom
+    const divDim = d3.select("#yearbox").node().getBoundingClientRect();
+    const width = divDim.width - 2*margin.left - 2*margin.right;
+    const height = width *(3/4);
 
-    const ygdiv = d3.select("#yeargrid")
+    // const ygdiv = d3.select("#yeargrid");
     // console.log('ygdiv', ygdiv)
-    let grid_g = ygdiv.append("svg")
+    // let grid_g = ygdiv.append("svg")
+    let grid_g = d3.select("#yeargrid")
     .attr('id', 'gridsvg')
     .attr('width', width+margin.left+margin.right)
     .attr('height', height+margin.top+margin.bottom)
@@ -165,4 +167,5 @@ class yeargrid {
   .attr('height', height)
      .call(brush);
   }
+
 }

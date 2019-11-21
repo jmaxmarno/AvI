@@ -2,18 +2,18 @@ class AreaChart{
     /**
      * Creates a Bubble plot Object
      */
-    constructor(data, histData, activeAttribute, activeTime, updateAttribute, updateTime, colorfunction) {
+    constructor(data, histData, activeAttribute, activeTime, updateAttribute, colorfunction) {
         this.data = data;
         this.histData = histData
         this.activeAttribute = activeAttribute;
         this.activeTime = activeTime;
         this.updateAttribute = updateAttribute;
         this.catcolor = colorfunction;
-        // this.updateTime = updateTime;
         this.showSummer = true;
-        this.hist = {'width':  1400,'height' : 100};
-        this.area = {'width': 1400,'height': 200};
-        this.buffer = 30
+        this.buffer = 30;
+        let width = d3.select("#areachart").node().getBoundingClientRect().width - (this.buffer*3);
+        this.hist = {'width': width,'height' : 100};
+        this.area = {'width': width,'height': 200};
         this.months = {1:"January", 2:"February", 3:"March", 4:"April", 5:"May", 6:"June",
             7:"July", 8:"August", 9:"September", 10:"October", 11:"November", 12:"December"};
         this.attributes = ["trigger", "aspect", "size", "elevation"];
@@ -86,7 +86,7 @@ class AreaChart{
         let footnote = footnoteSVG.append("g").attr("transform", "translate("+this.buffer/2+","+this.buffer/2+")");
         footnote.append('text')
                 .attr("class", "footnote")
-                .text("The histogram above shows the count of avalanche observations binned by month and stacked bar chart below that shows the relative proportions of the selected observation characteristic. Hover over the bars for more information.");
+                .text("The histogram above shows the count of avalanche observations, binned by month, and stacked bar chart below that shows the relative proportions of the selected observation characteristic. Hover over the bars for more information.");
 
         // set up for drop down
 
@@ -94,7 +94,7 @@ class AreaChart{
         let aWrap = dropdownWrap.append('div').classed('dropdown-panel', true);
         aWrap.append('div').classed('d-label', true)
             .append('text')
-            .text('Characteristic of Interest:  ');
+            .text('Select Characteristic:');
         aWrap.append('div').attr('id', 'dropdown_a').classed('dropdown', true).append('div').classed('dropdown-content', true)
             .append('select');
 

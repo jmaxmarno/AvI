@@ -31,7 +31,7 @@ d3.json('data/avalanches.json').then( data => {
         storyy.update(activeAtrribute, activeTime);
     }
     countData = getCountData();
-    const areaChart = new AreaChart(data, countData, this.activeAtrribute, this.activeTime, updateAttribute, updateTime, catColoring);
+    const areaChart = new AreaChart(data, countData, this.activeAtrribute, this.activeTime, updateAttribute, catColoring);
 	const yearGrid = new yeargrid(countData, updateTime);
     const spider = new spiderchart(data, that.activeAtrribute, catColoring);
     const storyy = new story(data, that.activeAtrribute);
