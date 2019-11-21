@@ -373,7 +373,6 @@ class AreaChart{
           d.dims.xval = widthmap.slice(0, i).reduce((a,b)=>a+b,0)
           return d
         })
-        console.log(withx);
         return withx;
     };
 

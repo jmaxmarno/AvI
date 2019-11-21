@@ -21,17 +21,20 @@ d3.json('data/avalanches.json').then( data => {
         that.activeAtrribute = activeAtrribute;
         areaChart.setAttribute(activeAtrribute);
         spider.update(activeAtrribute, activeTime);
+        storyy.update(activeAtrribute, activeTime);
     }
 
     function updateTime(activeTime){
         that.activeTime = activeTime;
         areaChart.setTime(activeTime);
         spider.update(activeAtrribute, activeTime);
+        storyy.update(activeAtrribute, activeTime);
     }
     countData = getCountData();
     const areaChart = new AreaChart(data, countData, this.activeAtrribute, this.activeTime, updateAttribute, updateTime, catColoring);
-		const yearGrid = new yeargrid(countData, updateTime);
+	const yearGrid = new yeargrid(countData, updateTime);
     const spider = new spiderchart(data, that.activeAtrribute, catColoring);
+    const storyy = new story(data, that.activeAtrribute);
 
 });
 /**
