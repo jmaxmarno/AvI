@@ -4,9 +4,11 @@ class spiderchart{
      */
     constructor(data, category, colorfunction) {
       // Chart styling parameters
-        this.width = 200;
-        this.height = 200;
-        this.margin = {top: 40, bottom: 40, left: 60, right: 60};
+        this.margin = {top: 80, bottom: 40, left: 60, right: 63};
+        let divDim = d3.select("#dropdown").node().getBoundingClientRect();
+        console.log(divDim)
+        this.width = divDim.width - 2*this.margin.left - this.margin.right;
+        this.height = this.width;
         this.innerlevels = 2;
         this.color = colorfunction
       // Chart Data:
@@ -36,7 +38,7 @@ class spiderchart{
 
       // svg stuff
       d3.select('#spidersvg').remove();
-      let spidersvg = d3.select('#starplot').append('svg').attr('id', 'spidersvg')
+      let spidersvg = d3.select('#dropdown').append("svg").attr("id", "spidersvg")
         .attr('width', self.width+self.margin.left+self.margin.right)
         .attr('height', self.height+self.margin.bottom+self.margin.top);
       let spider_g = spidersvg.append('g')
