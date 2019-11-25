@@ -4,9 +4,9 @@ class spiderchart{
      */
     constructor(data, category, colorfunction) {
       // Chart styling parameters
-        this.margin = {top: 80, bottom: 40, left: 60, right: 63};
+        this.margin = {top: 80, bottom: 50, left: 70, right: 70};
         let divDim = d3.select("#dropdown").node().getBoundingClientRect();
-        console.log(divDim)
+        // console.log(divDim)
         this.width = divDim.width - 2*this.margin.left - this.margin.right;
         this.height = this.width;
         this.innerlevels = 2;
@@ -18,7 +18,10 @@ class spiderchart{
 
         let startYear = Object.keys(this.data)[0];
         let startMonth = Object.keys(this.data[startYear])[0];
-        this.labels = Object.keys(this.data[startYear][startMonth][this.category]);
+        // this.labels = Object.keys(this.data[startYear][startMonth][this.category]);
+        this.labels = Object.keys(this.data[startYear][startMonth][this.category]).map(function(d){
+          return {'val': d}
+        });
         this.draw();
     };
 
@@ -81,24 +84,52 @@ class spiderchart{
       })
       .attr('class', 'spideraxis')
       .style('stroke', function(d, i){
-        return self.color(self.category, d)})
-      .style('stroke-width', '2px')
+        return self.color(self.category, d.val)})
+      .style('stroke-width', '3px')
       .style('stroke-opacity', '0.4')
 
       // Axis Labels:
+
+      const labeloffset = 1.3
+      axesLines.append('rect')
       axesLines.append('text')
-      .text(d=>d)
-      .style("font-size", "12px")
+      .text(d=>d.val)
+      .style("font-size", "10px")
       // .attr('class', 'spideraxis')
       .attr("text-anchor", "middle")
       .attr("dy", "0.35em")
-      .style('fill', function(d, i){return self.color(self.category, d)})
+      .style('fill', 'black')
+      // .style('fill', function(d, i){return self.color(self.category, d.val)})
       .attr('x', function(d, i){
-        return radiusScale(maxprop*1.3)*Math.cos(axesSlice*i - Math.PI/2);
+        return radiusScale(maxprop*labeloffset)*Math.cos(axesSlice*i - Math.PI/2);
       })
       .attr('y', function(d, i){
-        return radiusScale(maxprop*1.3)*Math.sin(axesSlice*i - Math.PI/2);
+        return radiusScale(maxprop*labeloffset)*Math.sin(axesSlice*i - Math.PI/2);
       })
+      // Add bounding box to data for background rectangles
+    axesLines.selectAll("text").each(function(d, i) {
+      let ii = self.labels.map(n=>n.val).indexOf(d.val)
+        self.labels[ii].bb = this.getBBox()
+        self.labels[ii].i = ii
+
+    });
+    // update size and position of background rectangles
+    var paddingLeftRight = 12; // adjust the padding values depending on font and font size
+    var paddingTopBottom = 5;
+    axesLines.selectAll('rect')
+    .attr('width', function(d){
+      return d.bb.width + paddingLeftRight;})
+    .attr('height', function(d){return d.bb.height+paddingTopBottom;})
+    .attr('x', function(d, i){
+      return radiusScale(maxprop*labeloffset)*Math.cos(axesSlice*d.i - Math.PI/2)- d.bb.width/2 - paddingLeftRight/2;
+    })
+    .attr('y', function(d, i){
+      return radiusScale(maxprop*labeloffset)*Math.sin(axesSlice*d.i - Math.PI/2)- d.bb.height + paddingTopBottom/2;
+    })
+    .style('fill', function(d, i){return self.color(self.category, d.val)})
+
+
+
       // TODO: move radial line function up when stable
       let lineRadial = d3.lineRadial()
       .radius(function(d){return radiusScale(d.prop)})
@@ -139,7 +170,7 @@ class spiderchart{
       })
       .style('fill', 'none')
 
-      // intercept cicles
+      // intercept circles
       starWrap.selectAll('.starintercept')
       .data(function(d, i){return d})
       .enter().append('circle')
@@ -165,7 +196,10 @@ class spiderchart{
       this.category = activeatt;
       let startYear = Object.keys(this.data)[0];
       let startMonth = Object.keys(this.data[startYear])[0];
-      this.labels = Object.keys(this.data[startYear][startMonth][this.category]);
+      // this.labels = Object.keys(this.data[startYear][startMonth][this.category]);
+      this.labels = Object.keys(this.data[startYear][startMonth][this.category]).map(function(d){
+        return {'val': d}
+      });
       this.draw()
     }
     // Get aggregate star plot data for all data points
@@ -174,10 +208,11 @@ class spiderchart{
       let grandtotal = 0
       let cattotals = []
       self.labels.map(function(d){
-        cattotals[d] = {}
-        cattotals[d].count = 0
-        cattotals[d].prop = 0
+        cattotals[d.val] = {}
+        cattotals[d.val].count = 0
+        cattotals[d.val].prop = 0
       })
+
       for (let year in self.data){
         for(let month in self.data[year]){
           // console.log('monthtotal', self.data[year][month]);
@@ -208,9 +243,9 @@ class spiderchart{
       let grandtotal = 0
       let cattotals = []
       self.labels.map(function(d){
-        cattotals[d] = {}
-        cattotals[d].count = 0
-        cattotals[d].prop = 0
+        cattotals[d.val] = {}
+        cattotals[d.val].count = 0
+        cattotals[d.val].prop = 0
       })
       let activeyears = this.activetime.map(d=>d.year)
       // console.log('spider active years', activeyears);

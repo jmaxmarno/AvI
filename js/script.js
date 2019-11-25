@@ -48,7 +48,7 @@ function catColoring(activecat, value){
     let aspects = ['Northwest', 'North', 'Northeast', 'East', 'Southeast', 'South', 'Southwest', 'West']
     let aspectcolor = d3.scaleLinear()
         .domain([0, 1, 2, 3, 4])
-        .range(['#eb4444', 'lightblue', 'lightgreen', 'yellow', '#eb4444'])
+        .range(['#eb4444', '#2f7ef5', 'lightgreen', 'yellow', '#eb4444'])
         .interpolate(d3.interpolateRgb.gamma(2.2))
 
     let aspectnumeric = d3.scaleOrdinal()
