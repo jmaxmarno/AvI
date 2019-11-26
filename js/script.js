@@ -16,7 +16,10 @@ d3.json('data/avalanches.json').then( data => {
         }
         return countData;
     };
-
+    function showsummer(truefalse){
+      console.log('show summer func');
+      yearGrid.updatesummer(truefalse)
+    }
     function updateAttribute(activeAtrribute){
         that.activeAtrribute = activeAtrribute;
         areaChart.setAttribute(activeAtrribute);
@@ -31,8 +34,9 @@ d3.json('data/avalanches.json').then( data => {
         storyy.update(activeAtrribute, activeTime);
     }
     countData = getCountData();
-    const areaChart = new AreaChart(data, countData, this.activeAtrribute, this.activeTime, updateAttribute, catColoring);
-	const yearGrid = new yeargrid(countData, updateTime);
+    const yearGrid = new yeargrid(countData, updateTime);
+    const areaChart = new AreaChart(data, countData, this.activeAtrribute, this.activeTime, updateAttribute, catColoring, showsummer);
+
     const spider = new spiderchart(data, that.activeAtrribute, catColoring);
     const storyy = new story(data, that.activeAtrribute);
 
@@ -76,7 +80,7 @@ function catColoring(activecat, value){
     let triggers = ["Natural", "Explosive","Skier","Snowboarder","Snowmobiler","Snowshoer","Hiker","Snow Bike"]
     let triggercolor = d3.scaleOrdinal()
         .domain(triggers)
-        .range(['green', 'red', 'DodgerBlue', 'blue', 'lightblue', '#05fa6f','#05fabd', '#d1fa05'])
+        .range(['green', 'orange', 'DodgerBlue', 'blue', 'lightblue', '#05fa6f','#05fabd', '#d1fa05'])
     if(triggers.includes(value)){
       return triggercolor(value);
     }else {

@@ -2,7 +2,7 @@
 // Year/month grid class
 class yeargrid {
   constructor(data, updateTime){
-    this.normmonths = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL','AUG', 'SEP', 'OCT', 'NOV', 'DEC']
+    this.normmonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul','Aug', 'Sep', 'Oct', 'Nov', 'Dec']
     this.years = range(2009, 2019)
     this.data = data
     this.updateTime = updateTime
@@ -14,6 +14,24 @@ class yeargrid {
       if(start === end) return [start];
       return [start, ...range(start+1, end)];
     }
+  }
+  updatesummer(truefalse){
+    this.showSummer = truefalse
+    console.log(this.showSummer);
+    // this.highlightBrushed();
+    let rrects = d3.select("#gridsvg").selectAll('rect')
+    console.log(rrects);
+    let brushedrects;
+    if (this.showSummer==true){
+      brushedrects = rrects.selectAll('.brushed').data()
+    }else{
+      brushedrects = rrects.selectAll('.brushed').filter(function(b){
+        // console.log('brushed rect', b, 'bcount', b.count)
+        return b.count>0
+      }).data()
+    }
+    let brush = d3.select('#brushg').select('.selection')
+    console.log(brush.attr('x'));
   }
 
   drawgrid(){
@@ -30,9 +48,6 @@ class yeargrid {
     const width = divDim.width - 2*margin.left - 2*margin.right;
     const height = width *(3/4);
 
-    // const ygdiv = d3.select("#yeargrid");
-    // console.log('ygdiv', ygdiv)
-    // let grid_g = ygdiv.append("svg")
     let grid_g = d3.select("#yeargrid")
     .attr('id', 'gridsvg')
     .attr('width', width+margin.left+margin.right)
@@ -44,10 +59,10 @@ class yeargrid {
 
   const gcolor = d3.scaleSqrt()
   .range(["white", "red"])
-  .domain([1,maxcount])
+  .domain([0,maxcount])
 
   // Reorder months
-  let reMonths = ['AUG', 'SEP', 'OCT', 'NOV', 'DEC', 'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL']
+  let reMonths = ['Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul']
   const xscale = d3.scaleBand()
   .range([0, width])
   .domain(reMonths)
@@ -76,6 +91,7 @@ class yeargrid {
     let nyear = (parseFloat(d.toString().slice(-2))+1).toString()
     return cyear+"/"+nyear
   })
+  .style('font-size', '14px')
 
   let gridrects = grid_g.selectAll('rect')
   .data(that.data)
@@ -119,7 +135,7 @@ class yeargrid {
 
 // TODO: This is NOT clean...:
     let years = []
-    for (var key in brushedrects){
+    for (let key in brushedrects){
       // console.log(brushedrects[key]['year'])
       if (years.includes(brushedrects[key]['year'])){
       }else{
@@ -140,7 +156,7 @@ class yeargrid {
 
   }
   function highlightBrushed() {
-
+    console.log('highlightBrushed');
     gridrects.classed('brushed', false);
       if (d3.event.selection != null) {
           // revert circles to initial style
@@ -150,13 +166,21 @@ class yeargrid {
           // style brushed circles
           gridrects.filter(function (){
             // TODO: update brush to snap 'out' to selected rects
-                     let xx = +d3.select(this).attr("x")+(xscale.bandwidth()*0.5);
-                     let yy = +d3.select(this).attr("y")+(yscale.bandwidth()*0.5);
-                     return withinbrush(brush_coords, xx, yy);
-                 })
-                 .classed("brushed", true);
-                  }
+            let r = d3.select(this)
+             let xx = +r.attr("x")+(xscale.bandwidth()*0.5);
+             let yy = +r.attr("y")+(yscale.bandwidth()*0.5);
+             let cc = r.data()[0].count
+
+             if (that.showSummer===true){
+               return withinbrush(brush_coords, xx, yy)
+             }else if (that.showSummer === false) {
+               return withinbrush(brush_coords, xx, yy) && cc>0 ;
+             }
+         })
+         .classed("brushed", true);
+          }
   }
+
   let brush  = d3.brush()
   .on('brush', highlightBrushed)
   .on('end', endbrush)
@@ -165,7 +189,34 @@ class yeargrid {
   .attr('id', 'brushg')
   .attr('width', width)
   .attr('height', height)
-     .call(brush);
+  .call(brush);
+
+
+ // draw drawLegend
+ let legendsvg = d3.select('#yearmonthlegend').append('svg')
+ .attr('width', width+margin.left+margin.right)
+ .attr('height', 35)
+ .append('g')
+ .attr('transform', 'translate(' + 0 + ',' + -5 + ')')
+
+ legendsvg.selectAll('rect').data([0, maxcount/8, maxcount/4, maxcount])
+ .enter().append('rect')
+ .attr('x', function(d, i){return 100+i*xscale.bandwidth()*1.1})
+ .attr('y', '10')
+ .style('fill', d=>gcolor(d))
+ .attr('width', xscale.bandwidth())
+ .attr('height', yscale.bandwidth())
+ .attr('class', 'yeargrid')
+legendsvg.append('text')
+  .style('font-size', '12px')
+ .attr('x', 10)
+ .attr('y', 25)
+ .text('Less Reported')
+ legendsvg.append('text')
+   .style('font-size', '12px')
+  .attr('x', 110+4*xscale.bandwidth()*1.1)
+  .attr('y', 25)
+  .text('More Reported')
   }
 
 }

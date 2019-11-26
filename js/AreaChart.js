@@ -2,12 +2,13 @@ class AreaChart{
     /**
      * Creates a Bubble plot Object
      */
-    constructor(data, histData, activeAttribute, activeTime, updateAttribute, colorfunction) {
+    constructor(data, histData, activeAttribute, activeTime, updateAttribute, colorfunction, summerfunction) {
         this.data = data;
         this.histData = histData
         this.activeAttribute = activeAttribute;
         this.activeTime = activeTime;
         this.updateAttribute = updateAttribute;
+        this.updatesummer = summerfunction
         this.catcolor = colorfunction;
         this.showSummer = true;
         this.buffer = 30;
@@ -58,7 +59,7 @@ class AreaChart{
             .attr("width", this.hist.width)
             .attr("height", this.hist.height)
             .attr("class", "border");
-        // kernal density 
+        // kernal density
         histPlot.append("path")
             .attr("id", "kd")
             .attr("fill", "LightBlue")
@@ -482,9 +483,11 @@ class AreaChart{
                 that.showSummer = true;
                 that.updateHistogram();
                 that.updateAreaChart();
+                that.updatesummer(that.showSummer)
             }
             else{
                 that.showSummer = false;
+                that.updatesummer(that.showSummer)
                 that.updateHistogram();
                 that.updateAreaChart();
             }
