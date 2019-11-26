@@ -25,19 +25,21 @@ d3.json('data/avalanches.json').then( data => {
         spider.update(activeAtrribute, activeTime);
         storyy.update(activeAtrribute, activeTime);
     }
-
     function updateTime(activeTime){
         that.activeTime = activeTime;
         areaChart.setTime(activeTime);
         spider.update(activeAtrribute, activeTime);
         storyy.update(activeAtrribute, activeTime);
     }
+    // instantiate views
     countData = getCountData();
     const yearGrid = new yeargrid(countData, updateTime);
     const areaChart = new AreaChart(data, countData, this.activeAtrribute, this.activeTime, updateAttribute, catColoring, showsummer);
-
     const spider = new spiderchart(data, that.activeAtrribute, catColoring);
     const storyy = new story(data, that.activeAtrribute);
+
+    // Demo 'guided' select:
+    yearGrid.selectgrid([{year:'2013', months:[1,2,4]}, {year:'2018', months:[10, 11, 12]}]);
 
 });
 /**
