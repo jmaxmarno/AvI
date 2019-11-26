@@ -17,7 +17,6 @@ d3.json('data/avalanches.json').then( data => {
         return countData;
     };
     function showsummer(truefalse){
-      console.log('show summer func');
       yearGrid.updatesummer(truefalse)
     }
     function updateAttribute(activeAtrribute){

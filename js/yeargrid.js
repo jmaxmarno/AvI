@@ -7,7 +7,20 @@ class yeargrid {
     this.data = data
     this.updateTime = updateTime
     this.showSummer = false
-
+    this.margin = {top:40, bottom:0, left:60, right:40};
+    this.divDim = d3.select("#yearbox").node().getBoundingClientRect();
+    this.width = this.divDim.width - 2*this.margin.left - 2*this.margin.right;
+    this.height = this.width *(3/4);
+    this.reMonths = ['Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul']
+    this.xscale = d3.scaleBand()
+    .range([0, this.width])
+    .domain(this.reMonths)
+    .padding(0.01)
+    this.yscale = d3.scaleBand()
+    .range([0, this.height])
+    .domain(this.years)
+    .padding(0.01)
+    // Draw it!
     this.drawgrid()
 
     function range(start, end){
@@ -16,11 +29,30 @@ class yeargrid {
     }
   }
   updatesummer(truefalse){
+    let that = this
     this.showSummer = truefalse
-    console.log(this.showSummer);
-    // this.highlightBrushed();
-    let rrects = d3.select("#gridsvg").selectAll('rect')
-    console.log(rrects);
+    let brush = d3.select('#brushg').select('.selection')
+    let bcoords = [[parseFloat(brush.attr('x')),parseFloat(brush.attr('y'))]
+    ,[parseFloat(brush.attr('x'))+parseFloat(brush.attr('width')), parseFloat(brush.attr('y'))+parseFloat(brush.attr('height'))]]
+
+    let rrects = d3.select("#gridsvg").selectAll('.yeargrid')
+
+    //  reset brushedrects
+    rrects.classed('brushed', false)
+    rrects.filter(function (){
+      // TODO: update brush to snap 'out' to selected rects
+      let r = d3.select(this)
+       let xx = +r.attr("x")+(that.xscale.bandwidth()*0.5);
+       let yy = +r.attr("y")+(that.yscale.bandwidth()*0.5);
+       let cc = r.data()[0].count
+
+       if (that.showSummer===true){
+         return that.withinbrush(bcoords, xx, yy)
+       }else if (that.showSummer === false) {
+         return that.withinbrush(bcoords, xx, yy) && cc>0 ;
+       }
+   }).classed("brushed", true);
+
     let brushedrects;
     if (this.showSummer==true){
       brushedrects = rrects.selectAll('.brushed').data()
@@ -30,8 +62,14 @@ class yeargrid {
         return b.count>0
       }).data()
     }
-    let brush = d3.select('#brushg').select('.selection')
-    console.log(brush.attr('x'));
+
+  }
+  withinbrush(brushcoords, xx, yy){
+    let x0 = brushcoords[0][0];
+    let x1 = brushcoords[1][0];
+    let y0 = brushcoords[0][1];
+    let y1 = brushcoords[1][1];
+    return x0 <= xx && xx<= x1 && y0<=yy && yy <= y1;
   }
 
   drawgrid(){
@@ -42,18 +80,18 @@ class yeargrid {
       d.nmonth = nmonth
       return d
     })
-
-    const margin = {top:40, bottom:0, left:60, right:40};
-    const divDim = d3.select("#yearbox").node().getBoundingClientRect();
-    const width = divDim.width - 2*margin.left - 2*margin.right;
-    const height = width *(3/4);
+    //
+    // const margin = {top:40, bottom:0, left:60, right:40};
+    // const divDim = d3.select("#yearbox").node().getBoundingClientRect();
+    // const width = divDim.width - 2*margin.left - 2*margin.right;
+    // const height = width *(3/4);
 
     let grid_g = d3.select("#yeargrid")
     .attr('id', 'gridsvg')
-    .attr('width', width+margin.left+margin.right)
-    .attr('height', height+margin.top+margin.bottom)
+    .attr('width', that.width+that.margin.left+that.margin.right)
+    .attr('height', that.height+that.margin.top+that.margin.bottom)
     .append('g')
-    .attr('transform', "translate(" + margin.left + "," + margin.top + ")");
+    .attr('transform', "translate(" + that.margin.left + "," + that.margin.top + ")");
 
   const maxcount = Math.max(...that.data.map(d=>+d.count))
 
@@ -62,14 +100,14 @@ class yeargrid {
   .domain([0,maxcount])
 
   // Reorder months
-  let reMonths = ['Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul']
-  const xscale = d3.scaleBand()
-  .range([0, width])
-  .domain(reMonths)
-  .padding(0.01)
+  // let reMonths = ['Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul']
+  // const xscale = d3.scaleBand()
+  // .range([0, width])
+  // .domain(reMonths)
+  // .padding(0.01)
   const xaxgroup = grid_g.append("g")
   .attr('transform', 'translate(' + 0 + ',' + 0 + ')')
-  .call(d3.axisTop(xscale))
+  .call(d3.axisTop(that.xscale))
   .selectAll('text')
   .classed('monthlabel', true)
     .style('text-anchor', 'end')
@@ -78,13 +116,13 @@ class yeargrid {
     .attr('transform', 'rotate(-65)');
 
 // TODO: make year labels show both years the row represents, not just the start
-  const yscale = d3.scaleBand()
-  .range([0, height])
-  .domain(that.years)
-  .padding(0.01)
+  // const yscale = d3.scaleBand()
+  // .range([0, height])
+  // .domain(that.years)
+  // .padding(0.01)
   const yaxgroup = grid_g.append("g")
   .attr('transform', 'translate(' + 0 + ',' + 0 + ')')
-  .call(d3.axisLeft(yscale))
+  .call(d3.axisLeft(that.yscale))
   .selectAll('text')
   .text(function(d){
     let cyear = d.toString().slice(-2)
@@ -96,27 +134,19 @@ class yeargrid {
   let gridrects = grid_g.selectAll('rect')
   .data(that.data)
   .enter().append('rect')
-  .attr('x', d=>xscale(d.nmonth))
+  .attr('x', d=>that.xscale(d.nmonth))
   .attr('y', function(d){
     // offset the month so that the row is a continuous stretch of time August-July
     // // TODO: change so that uses the month index of the first month in the reordered months
-    return (d.month <8?yscale(d.year-1):yscale(d.year))
+    return (d.month <8?that.yscale(d.year-1):that.yscale(d.year))
   })
 
-  .attr('width', xscale.bandwidth())
-  .attr('height', yscale.bandwidth())
+  .attr('width', that.xscale.bandwidth())
+  .attr('height', that.yscale.bandwidth())
   .style('fill', d=>gcolor(d.count))
   .attr('class', 'yeargrid')
 
   // gridrects.append('svg:title').text('TEST')
-
-  function withinbrush(brushcoords, xx, yy){
-    let x0 = brushcoords[0][0];
-    let x1 = brushcoords[1][0];
-    let y0 = brushcoords[0][1];
-    let y1 = brushcoords[1][1];
-    return x0 <= xx && xx<= x1 && y0<=yy && yy <= y1;
-  }
   function endbrush(){
     // console.log('brush ended')
     if (d3.event.selection == null) {
@@ -156,7 +186,7 @@ class yeargrid {
 
   }
   function highlightBrushed() {
-    console.log('highlightBrushed');
+
     gridrects.classed('brushed', false);
       if (d3.event.selection != null) {
           // revert circles to initial style
@@ -167,14 +197,14 @@ class yeargrid {
           gridrects.filter(function (){
             // TODO: update brush to snap 'out' to selected rects
             let r = d3.select(this)
-             let xx = +r.attr("x")+(xscale.bandwidth()*0.5);
-             let yy = +r.attr("y")+(yscale.bandwidth()*0.5);
+             let xx = +r.attr("x")+(that.xscale.bandwidth()*0.5);
+             let yy = +r.attr("y")+(that.yscale.bandwidth()*0.5);
              let cc = r.data()[0].count
 
              if (that.showSummer===true){
-               return withinbrush(brush_coords, xx, yy)
+               return that.withinbrush(brush_coords, xx, yy)
              }else if (that.showSummer === false) {
-               return withinbrush(brush_coords, xx, yy) && cc>0 ;
+               return that.withinbrush(brush_coords, xx, yy) && cc>0 ;
              }
          })
          .classed("brushed", true);
@@ -187,25 +217,25 @@ class yeargrid {
 
   grid_g.append("g")
   .attr('id', 'brushg')
-  .attr('width', width)
-  .attr('height', height)
+  .attr('width', that.width)
+  .attr('height', that.height)
   .call(brush);
 
 
  // draw drawLegend
  let legendsvg = d3.select('#yearmonthlegend').append('svg')
- .attr('width', width+margin.left+margin.right)
+ .attr('width', that.width+that.margin.left+that.margin.right)
  .attr('height', 35)
  .append('g')
  .attr('transform', 'translate(' + 0 + ',' + -5 + ')')
 
  legendsvg.selectAll('rect').data([0, maxcount/8, maxcount/4, maxcount])
  .enter().append('rect')
- .attr('x', function(d, i){return 100+i*xscale.bandwidth()*1.1})
+ .attr('x', function(d, i){return 100+i*that.xscale.bandwidth()*1.1})
  .attr('y', '10')
  .style('fill', d=>gcolor(d))
- .attr('width', xscale.bandwidth())
- .attr('height', yscale.bandwidth())
+ .attr('width', that.xscale.bandwidth())
+ .attr('height', that.yscale.bandwidth())
  .attr('class', 'yeargrid')
 legendsvg.append('text')
   .style('font-size', '12px')
@@ -214,7 +244,7 @@ legendsvg.append('text')
  .text('Less Reported')
  legendsvg.append('text')
    .style('font-size', '12px')
-  .attr('x', 110+4*xscale.bandwidth()*1.1)
+  .attr('x', 110+4*that.xscale.bandwidth()*1.1)
   .attr('y', 25)
   .text('More Reported')
   }
