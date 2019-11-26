@@ -242,7 +242,7 @@ class yeargrid {
 
    legendsvg.selectAll('rect').data([0, maxcount/8, maxcount/4, maxcount])
    .enter().append('rect')
-   .attr('x', function(d, i){return 100+i*that.xscale.bandwidth()*1.1})
+   .attr('x', function(d, i){return that.width*.45+i*that.xscale.bandwidth()*1.1})
    .attr('y', '10')
    .style('fill', d=>gcolor(d))
    .attr('width', that.xscale.bandwidth())
@@ -250,12 +250,12 @@ class yeargrid {
    .attr('class', 'yeargrid')
   legendsvg.append('text')
     .style('font-size', '12px')
-   .attr('x', 10)
+   .attr('x', that.width*.2)
    .attr('y', 25)
    .text('Less Reported')
    legendsvg.append('text')
      .style('font-size', '12px')
-    .attr('x', 110+4*that.xscale.bandwidth()*1.1)
+    .attr('x', that.width*.5+4*that.xscale.bandwidth()*1.1)
     .attr('y', 25)
     .text('More Reported')
   }
