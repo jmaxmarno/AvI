@@ -37,7 +37,7 @@ d3.json('data/avalanches.json').then( data => {
     const yearGrid = new yeargrid(countData, updateTime);
     const areaChart = new AreaChart(data, countData, this.activeAtrribute, this.activeTime, updateAttribute, catColoring, showsummer);
     const spider = new spiderchart(data, that.activeAtrribute, catColoring);
-    const storyy = new story(data, that.activeAtrribute, updateTime);
+    const storyy = new story(data, that.activeAtrribute, yearGrid);
 
     // Demo 'guided' select:
     yearGrid.selectgrid([{year:'2013', months:[1,2,4]}, {year:'2018', months:[10, 11, 12]}]);
