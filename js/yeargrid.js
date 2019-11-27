@@ -34,26 +34,31 @@ class yeargrid {
   *@params yearmonthrange - pass as nested [{year:2010, months:[1,2,3,4]}]
   *
   **/
-
   selectgrid(daterange){
     let allrects = d3.select("#gridsvg").selectAll('.yeargrid')
     let selrects = allrects.filter(function(d){
-      console.log([daterange.map(d=>d.year)]);
       // console.log('d', d.year);
       if ([...daterange.map(d=>d.year)].includes(d.year)){
         // console.log('dyear', d.year);
         let mmonths = daterange.filter(y=>y.year===d.year)[0].months
-        console.log('mmonths', mmonths);
         if (mmonths.includes(parseInt(d.month))){
           return d
         }
       }
     })
-    console.log('selected rects', selrects);
     selrects.classed('brushed', true)
-    console.log('daterange', daterange);
     this.updateTime(daterange)
 
+  }
+
+  invertscale(scale){
+    let domain = scale.domain();
+    let pad = scale(domain[0]);
+    let bands = scale.step();
+    return function(d){
+      let i = Math.floor(((d - pad)/ bands));
+      return domain[Math.max(0, Math.min(i, domain.length-1))]
+    }
   }
 
   updatesummer(truefalse){
@@ -193,24 +198,40 @@ class yeargrid {
       return {year: y, months: monthss.map(mm=>that.normmonths.indexOf(mm)+1)}
     })
     that.updateTime(datedata)
-    console.log('date data', datedata);
+    // console.log('date data', datedata);
     return brushedrects
   }
 
   // highlight rects on brush
   function highlightBrushed() {
+
     gridrects.classed('brushed', false);
       if (d3.event.selection != null) {
+        if(d3.event.sourceEvent.type === 'brush') return;
           // revert circles to initial style
           gridrects.classed('brushed', false);
           var brush_coords = d3.brushSelection(this);
+
+          const b1 = d3.event.selection
+          let x0 = b1[0][0];
+          let x1 = b1[1][0];
+          let y0 = b1[0][1];
+          let y1 = b1[1][1];
+          let xx = [x0, x1].map(that.invertscale(that.xscale))
+          let yy = [y0, y1].map(that.invertscale(that.yscale))
+
+          let yyr = yy.map(that.yscale)
+          let xxr = xx.map(that.xscale)
+          d3.select(this).call(brush.move, [[xxr[0], yyr[0]], [xxr[1], yyr[1]]])
 
           // style brushed rects
           gridrects.filter(function (){
             // TODO: update brush to snap 'out' to selected rects
             let r = d3.select(this)
-             let xx = +r.attr("x")+(that.xscale.bandwidth()*0.5);
-             let yy = +r.attr("y")+(that.yscale.bandwidth()*0.5);
+             let xx = +r.attr("x")+(that.xscale.bandwidth());
+             let yy = +r.attr("y")+(that.yscale.bandwidth());
+             // let xx = +r.attr("x")+(that.xscale.bandwidth()*0.5);
+             // let yy = +r.attr("y")+(that.yscale.bandwidth()*0.5);
              let cc = r.data()[0].count
 
              if (that.showSummer===true){
