@@ -1,69 +1,87 @@
 class story{
-    constructor(data, category) {
+    constructor(data, category, updateTime) {
+      // Data:
+        this.data = data;
+        this.category =  category;
+        this.updateTime = updateTime;
       // styling parameters
         this.margin = {top: 10, bottom: 10, left: 10, right: 40};
         let divDim = d3.select("#story").node().getBoundingClientRect();
         this.width = divDim.width - this.margin.left - this.margin.right;
-        console.log(divDim.width)
-        this.height = divDim.height/2 - this.margin.top - this.margin.bottom;
-      // Data:
-        this.data = data;
-        this.category =  category;
-        this.activetime = [];
+        this.height = divDim.height - this.margin.top - this.margin.bottom;
 
-        let startYear = Object.keys(this.data)[0];
-        let startMonth = Object.keys(this.data[startYear])[0];
-        this.labels = Object.keys(this.data[startYear][startMonth][this.category]);
+      //story data
+        this.descriptions = {
+          "trigger": ["- Slides can occur naturally or be triggered intentionally or unintentionaly by human activity.",
+            "- It is important to remember that human triggered slides are more likely to be reported and these observations are not a representative sample of all avalanches in Utah."],
+          "aspect": ["- test ","- "],
+          "size": ["- "],
+          "elevation": ["- "]
+          }
+
+        this.points = {
+          "trigger":[
+            {"display":"Feb. 2011",
+              "time":[{"year":2011,"months":[2]}],
+              "text":"Many skiers."
+            },
+            {"display":"February",
+              "time":[{"year":2011,"months":[2]},{"year":2011,"months":[2]}],
+              "text":"Test feb."
+            },
+            {"display":"2011",
+              "time":[{"year":2011,"months":[1,2,3,4,5,6,7,8,9,10,11,12]}],
+              "text":"Many skiers."
+            }
+          ],
+          "aspect":[
+            {"display":"Feb. 2011","time":[{"year": "2010", "months":[2]}],"text":"Many skiers."},
+            {"display":"February","time":[{"year":2011,"months":[2]},{"year":2011,"months":[2]}],"text":"Many skiers."},
+            {"display":"2011","time":[{"year":2011,"months":[1,2,3,4,5,6,7,8,9,10,11,12]}],"text":"Many skiers."}
+          ],
+          "size":[
+            {"display":"Feb. 2011","time":[{"year":2011,"months":[2]}],"text":"Many skiers."},
+            {"display":"February","time":[{"year":2011,"months":[2]},{"year":2011,"months":[2]}],"text":"Many skiers."},
+            {"display":"2011","time":[{"year":2011,"months":[1,2,3,4,5,6,7,8,9,10,11,12]}],"text":"Many skiers."}
+          ],
+          "elevation":[
+            {"display":"Feb. 2011","time":[{"year":2011,"months":[2]}],"text":"Many skiers."},
+            {"display":"February","time":[{"year":2011,"months":[2]},{"year":2011,"months":[2]}],"text":"Many skiers."},
+            {"display":"2011","time":[{"year":2011,"months":[1,2,3,4,5,6,7,8,9,10,11,12]}],"text":"Many skiers."}
+          ],
+        }
+
+        this.draw();
+    }
+
+    // update function (re-draw)
+    update(activeatt, activetime){
+        this.category = activeatt;
         this.draw();
     }
 
     draw(){
-      let self = this;
-      d3.select('#storyGroup').remove();
-      d3.select('#storySVG').remove();
-      let storysvg = d3.select('#story').append('svg').attr('id', 'storySVG')
-        .attr("x", self.margin.left)
-        .attr("y", self.margin.right)
-        .attr('width', self.width)
-        .attr('height', self.height);
-      let story_g = storysvg.append('g').attr("id", "storyGroup")
-        .attr('transform', 'translate(' +  self.margin.left + ',' + 2*self.margin.top + ')');
-      if(this.category == "trigger"){ this.drawTrigger(); }
-      if(this.category == "aspect"){ this.drawAspect(); } 
-      if(this.category == "size"){ this.drawSize(); } 
-      if(this.category == "elevation"){ this.drawElevation(); } 
-    }
+      let that = this;
+      // update title
+      d3.select("#attrTitle").text(this.category);
+      // update description
+      let ul = d3.select("#attrDescription").selectAll('li').data(this.descriptions[this.category]);
+      let ul_enter = ul.enter().append('li');
+      ul.exit().remove();
+      ul = ul_enter.merge(ul)
+      ul.html(String);
+      let data = this.points[this.category]
+      // update buttons 
+      let buttons = d3.select("#story").selectAll("a").data(data);
+      let buttons_enter = buttons.enter().append("a");
+      buttons.exit().remove();
+      buttons = buttons_enter.merge(buttons);
+      buttons.text((d)=> d.display)
+        .on("click", function(d){
+          // that.updateTime(d.time); //not working
+          d3.select("#context").text(d.text);
+        })
+     }
 
-      // update function (re-draw)
-    update(activeatt, activetime){
-      this.activetime = activetime;
-      this.category = activeatt;
-      let startYear = Object.keys(this.data)[0];
-      let startMonth = Object.keys(this.data[startYear])[0];
-      this.labels = Object.keys(this.data[startYear][startMonth][this.category]);
-      this.draw();
-    }
-
-    drawTrigger(){
-      let storyG = d3.select("#storyGroup")
-      storyG.append("text")
-        .attr("class", "storyText")
-        .text("Slides can occur naturally, be triggered intentionally by humans, or be trigger unintentionally by humans.");
-    }
-
-    drawAspect(){
-      let storyG = d3.select("#storyGroup")
-      storyG.append("text").text("Aspect");
-    }
-
-    drawSize(){
-      let storyG = d3.select("#storyGroup")
-      storyG.append("text").text("Size");
-    }
-
-    drawElevation(){
-      let storyG = d3.select("#storyGroup")
-      storyG.append("text").text("Elevation");
-    }
 }
     

@@ -27,6 +27,7 @@ d3.json('data/avalanches.json').then( data => {
     }
 
     function updateTime(activeTime){
+        console.log(activeTime)
         that.activeTime = activeTime;
         areaChart.setTime(activeTime);
         spider.update(activeAtrribute, activeTime);
@@ -37,7 +38,7 @@ d3.json('data/avalanches.json').then( data => {
     const areaChart = new AreaChart(data, countData, this.activeAtrribute, this.activeTime, updateAttribute, catColoring, showsummer);
 
     const spider = new spiderchart(data, that.activeAtrribute, catColoring);
-    const storyy = new story(data, that.activeAtrribute);
+    const storyy = new story(data, that.activeAtrribute, updateTime);
 
 });
 /**
