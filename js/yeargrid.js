@@ -253,7 +253,7 @@ class yeargrid {
     // add brush to view
     grid_g.append("g")
     .attr('id', 'brushg')
-    .attr('width', '100')
+    .attr('width', that.width)
     .attr('height', that.height)
     .call(brush);
 

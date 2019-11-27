@@ -12,8 +12,9 @@ class story{
 
       //story data
         this.descriptions = {
-          "trigger": ["- Slides can occur naturally or be triggered intentionally or unintentionaly by human activity.",
-            "- It is important to remember that human triggered slides are more likely to be reported and these observations are not a representative sample of all avalanches in Utah."],
+          "trigger": ["- Slides can occur naturally or be triggered by human activity (intentionally or unintentionaly).",
+            "- It is important to remember that this data is comprised of submitted avalanche reports.",
+            " Thus, avalanches triggered by or near observers are more likely to be reported and these observations are not a representative sample of all avalanches in Utah."],
           "aspect": ["- Aspect is the direction the slope faces with respect to the sun.","-  North and East facing slopes recieve much less sunlight resulting in a colder snowpack with fragile weak-layers. These slopes alse tend to get more human traffic as the snow is deeper and better.", "- For these reasons the majority of avalanches occur on North and East facing slopes, this can be seen in the star plot."],
           "width": ["- Width refers to the distance across the hill of the slide.", "- Observations have recorded widths ranging from five to five thousand feet across.", "- The majority of slides reported are less than 200 feet across.", "- Avalanche size is typically measured by width, depth, and verticle distance. Width is noted in avalanche observations more consitently than depth and verticle distance, most likely because it is easier to estimate."],
           "elevation": ["- "]
@@ -28,18 +29,27 @@ class story{
 
         this.points = {
           "trigger":[
-            {"display":"Feb. 2011",
-              "time":[{"year":2011,"months":[2]}],
-              "text":"Many skiers."
+            {"display":"February 2015",
+              "time":[{"year":'2015',"months":[2]}],
+              "text":"Snowmobiler trigger avalanches were up 15% this month (8% to 23%) as shown in the central radar chart.  It's tough to speculate as to what could have caused this shift, but given the low proportion of natural avalanches reported this points at low snowfall."
             },
-            {"display":"February",
-              "time":[{"year":2011,"months":[2]},{"year":2011,"months":[2]}],
-              "text":"Test feb."
+            {"display":"All Novembers",
+              "time":[{"year":'2009',"months":[11]}
+              ,{"year":'2010',"months":[11]}
+              ,{"year":'2011',"months":[11]}
+              ,{"year":'2012',"months":[11]}
+              ,{"year":'2013',"months":[11]}
+              ,{"year":'2014',"months":[11]}
+              ,{"year":'2015',"months":[11]}
+              ,{"year":'2016',"months":[11]}
+              ,{"year":'2017',"months":[11]}
+              ,{"year":'2018',"months":[11]}
+              ,{"year":'2019',"months":[11]}],
+              "text":"Early season can be dangerous. Note the increase in the proportion of skier-triggered reports for all Novembers. However, the timeline seems to show a trend indicating an increase in natural-triggered slides reported, and decrease in skier-triggered slides reported. (Compare the enlarged green blocks moving left to right)"
             },
-            {"display":"2011",
-              "time":[{"year":2011,"months":[1,2,3,4,5,6,7,8,9,10,11,12]}],
-              "text":"Many skiers."
-            }
+            {"display":"2013/2014 Season",
+              "time":[{"year":"2013", "months":[8,9, 10, 11, 12]}, {"year":"2014", "months":[1,2,3,4,5,6,7]}],
+              "text": "This season we see a deviation from the running norm - an increase in the proportion of naturally triggered avalanches reported."}
           ],
           "aspect":[
             {"display":"May 2011","time":[{"year":"2011","months":[5]}],"text":"The distribution of the slope aspect in the observations of May 2011 looks quite different from most months. It appears that many more slides were reported on South and West facing slopes but it is hard to draw conclusions about this month because there were only five avalanche observations, making the proportions prone to effected by random chance."},
@@ -52,9 +62,9 @@ class story{
             {"display":"Winter 14/15","time":[{"year":"2014","months":[8,9,10,11,12]},{"year":"2015","months":[1,2,3,4,4,5,6,7]}],"text":"In the winter season of 2014-2015 there appears to be a trend in the proportion of observed widths. In the bar chart we can see that as time goes on there are the width of the reported slides decreases. This may be because the 2014-2015 season was warmer than most, resulting in less snow accumulation and smaller slides."}
           ],
           "elevation":[
-            {"display":"Feb. 2011","time":[{"year":2011,"months":[2]}],"text":"Many skiers."},
-            {"display":"February","time":[{"year":2011,"months":[2]},{"year":2011,"months":[2]}],"text":"Many skiers."},
-            {"display":"2011","time":[{"year":2011,"months":[1,2,3,4,5,6,7,8,9,10,11,12]}],"text":"Many skiers."}
+            {"display":"Feb. 2011","time":[{"year":'2011',"months":[2]}],"text":"Many skiers."},
+            {"display":"February","time":[{"year":'2011',"months":[2]},{"year":2011,"months":[2]}],"text":"Many skiers."},
+            {"display":"2011","time":[{"year":'2011',"months":[1,2,3,4,5,6,7,8,9,10,11,12]}],"text":"Many skiers."}
           ],
         }
 
@@ -79,7 +89,7 @@ class story{
       ul = ul_enter.merge(ul)
       ul.html(String);
       let data = this.points[this.category]
-      // update buttons 
+      // update buttons
       let buttons = d3.select("#story").selectAll("a").data(data);
       let buttons_enter = buttons.enter().append("a");
       buttons.exit().remove();
@@ -100,4 +110,3 @@ class story{
     }
 
 }
-    
