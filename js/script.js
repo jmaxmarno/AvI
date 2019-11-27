@@ -39,9 +39,6 @@ d3.json('data/avalanches.json').then( data => {
     const spider = new spiderchart(data, that.activeAtrribute, catColoring);
     const storyy = new story(data, that.activeAtrribute, yearGrid);
 
-    // Demo 'guided' select:
-    yearGrid.selectgrid([{year:'2013', months:[1,2,4]}, {year:'2018', months:[10, 11, 12]}]);
-
 });
 /**
  * coloring returns the color for the given value

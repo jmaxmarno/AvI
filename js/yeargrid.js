@@ -31,11 +31,14 @@ class yeargrid {
   }
   /**
   *Trigger year-month selection programatically
-  *@params yearmonthrange - pass as nested [{year:2010, months:[1,2,3,4]}]
+  *@params yearmonthrange - pass as nested [{year:'2010', months:[1,2,3,4]}]
   *
   **/
   selectgrid(daterange){
+    let that = this
     let allrects = d3.select("#gridsvg").selectAll('.yeargrid')
+    allrects.classed('brushed', false)
+    let brushg = d3.select('#brushg').call(that.brush.move, null);
     let selrects = allrects.filter(function(d){
       // console.log('d', d.year);
       if ([...daterange.map(d=>d.year)].includes(d.year)){
@@ -48,7 +51,6 @@ class yeargrid {
     })
     selrects.classed('brushed', true)
     this.updateTime(daterange)
-
   }
 
   invertscale(scale){
@@ -204,7 +206,6 @@ class yeargrid {
 
   // highlight rects on brush
   function highlightBrushed() {
-
     gridrects.classed('brushed', false);
       if (d3.event.selection != null) {
         if(d3.event.sourceEvent.type === 'brush') return;
@@ -247,10 +248,12 @@ class yeargrid {
     let brush  = d3.brush()
     .on('brush', highlightBrushed)
     .on('end', endbrush)
+
+    that.brush = brush;
     // add brush to view
     grid_g.append("g")
     .attr('id', 'brushg')
-    .attr('width', that.width)
+    .attr('width', '100')
     .attr('height', that.height)
     .call(brush);
 
