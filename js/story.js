@@ -15,7 +15,7 @@ class story{
           "trigger": ["- Slides can occur naturally or be triggered intentionally or unintentionaly by human activity.",
             "- It is important to remember that human triggered slides are more likely to be reported and these observations are not a representative sample of all avalanches in Utah."],
           "aspect": ["- test ","- "],
-          "size": ["- "],
+          "width": ["- "],
           "elevation": ["- "]
           }
 
@@ -39,7 +39,7 @@ class story{
             {"display":"February","time":[{"year":2011,"months":[2]},{"year":2011,"months":[2]}],"text":"Many skiers."},
             {"display":"2011","time":[{"year":2011,"months":[1,2,3,4,5,6,7,8,9,10,11,12]}],"text":"Many skiers."}
           ],
-          "size":[
+          "width":[
             {"display":"Feb. 2011","time":[{"year":2011,"months":[2]}],"text":"Many skiers."},
             {"display":"February","time":[{"year":2011,"months":[2]},{"year":2011,"months":[2]}],"text":"Many skiers."},
             {"display":"2011","time":[{"year":2011,"months":[1,2,3,4,5,6,7,8,9,10,11,12]}],"text":"Many skiers."}

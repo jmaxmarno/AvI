@@ -35,8 +35,9 @@ year ...
 Missing categories are marked "Unknown"
 Missing human stats are assumed to be 0
 '''
+trigger_labels = ["Natural", "Skier", "Snowmobiler", "Snowboarder", "Snow Bike", "Hiker", "Snowshoer", "Explosive", "Unknown"];
 aspect_labels =  ["North","Northeast", "East", "Southeast", "South", "Southwest", "West", "Northwest", "Unknown"];
-size_labels = ["Small", "Medium", "Large", "Unknown"]
+size_labels = ["Under 100 ft.", "100 - 200 ft.", "Over 200 ft.", "Unknown"]
 elevation_labels = ["Above 9,500ft", "8,000ft - 9,500ft", 'Below 8,000ft', "Unknown"]
 human_stat_labels = ["caught", "carried", "buried_partly", "buried_fully", "injured", "killed"]
 
@@ -78,19 +79,19 @@ def makeMonthDictTemplate(categorySets):
         'region' : {},
         'trigger' : {},
         'weak_layer' : {},
-        'size' : {},
+        'width' : {},
         'aspect' : {},
         'elevation' :{},
         'human_stats': {}
     }
     for region in categorySets[1]:
         monthDict["region"][region] = 0
-    for trigger in categorySets[3]:
+    for trigger in trigger_labels:
         monthDict["trigger"][trigger] = 0
     for weak_layer in categorySets[4]:
         monthDict["weak_layer"][weak_layer] = 0
     for size in size_labels:
-        monthDict["size"][size] = 0
+        monthDict["width"][size] = 0
     for aspect in aspect_labels:
         monthDict["aspect"][aspect] = 0
     for elevation in elevation_labels:
@@ -134,7 +135,7 @@ def updateMonthDict(monthDict, row):
     # update total_count
     monthDict['total_count'] += 1
     # update categories
-    keys = ['region','trigger','weak_layer', 'size', 'aspect', 'elevation']
+    keys = ['region','trigger','weak_layer', 'width', 'aspect', 'elevation']
     new_values = [region, trigger, weak_layer, get_size(depth,width,verticle), aspect, get_elevation(elevation)]
     for index in range(len(keys)):
         key = keys[index]
@@ -153,12 +154,12 @@ def get_size(depth,width,verticle):
     if width != 'Unknown':
         if type(width) != 'int':
             width = int(width.replace(',', '').replace("'","").replace('"',''))
-        if width > 600:
-            return "Large"
-        elif width > 300:
-            return "Medium"
+        if width > 200:
+            return "Over 200 ft."
+        elif width > 100:
+            return "100 - 200 ft."
         else:
-            return 'Small'
+            return 'Under 100 ft.'
     else:
         return 'Unknown'
 

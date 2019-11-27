@@ -89,8 +89,8 @@ function catColoring(activecat, value){
       return 'grey'
     }
     // sizes
-  }else if (activecat==='size') {
-    let sizes = ['Small', 'Medium', 'Large'];
+  }else if (activecat==='width') {
+    let sizes = ['Under 100 ft.', "100 - 200 ft.", "Over 200 ft."];
     let sizecolor = d3.scaleOrdinal()
     .domain(sizes)
     .range(['#cbc9e2', '#9e9ac8', '#6a51a3'])

@@ -17,7 +17,7 @@ class AreaChart{
         this.area = {'width': width,'height': 200};
         this.months = {1:"January", 2:"February", 3:"March", 4:"April", 5:"May", 6:"June",
             7:"July", 8:"August", 9:"September", 10:"October", 11:"November", 12:"December"};
-        this.attributes = ["trigger", "aspect", "size", "elevation"];
+        this.attributes = ["trigger", "aspect", "width", "elevation"];
         this.sortedLabels = {};
         this.setSortedLabels();
         this.draw();
@@ -409,7 +409,7 @@ class AreaChart{
         this.sortedLabels["trigger"] = this.sortCategory("trigger");
         // ordinal should be in the right order already
         this.sortedLabels["aspect"] = Object.keys(this.data[year][month]["aspect"]);
-        this.sortedLabels["size"] = Object.keys(this.data[year][month]["size"]);
+        this.sortedLabels["width"] = Object.keys(this.data[year][month]["width"]);
         this.sortedLabels["elevation"] = Object.keys(this.data[year][month]["elevation"]);
     }
 
@@ -436,6 +436,7 @@ class AreaChart{
         let sorted_labels = Object.keys(count_dict).sort(function(a, b) {
           return count_dict[b] - count_dict[a];
         })
+        console.log(sorted_labels)
         return sorted_labels;
     }
 
