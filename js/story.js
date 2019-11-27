@@ -14,11 +14,17 @@ class story{
         this.descriptions = {
           "trigger": ["- Slides can occur naturally or be triggered intentionally or unintentionaly by human activity.",
             "- It is important to remember that human triggered slides are more likely to be reported and these observations are not a representative sample of all avalanches in Utah."],
-          "aspect": ["- Aspect is the direction the slope faces with respect to the sun where the slide occured.","-  North and East facing slopes recieve much less sunlight resulting in a colder snowpack with fragile weak-layers. These slopes alse tend to get more human traffic as the snow is deeper and better.", "- For these reasons the majority of avalanches occur on North and East facing slopes, this can be seen in the star plot."],
+          "aspect": ["- Aspect is the direction the slope faces with respect to the sun.","-  North and East facing slopes recieve much less sunlight resulting in a colder snowpack with fragile weak-layers. These slopes alse tend to get more human traffic as the snow is deeper and better.", "- For these reasons the majority of avalanches occur on North and East facing slopes, this can be seen in the star plot."],
           "width": ["- Width refers to the distance across the hill of the slide.", "- Observations have recorded widths ranging from five to five thousand feet across.", "- The majority of slides reported are less than 200 feet across.", "- Avalanche size is typically measured by width, depth, and verticle distance. Width is noted in avalanche observations more consitently than depth and verticle distance, most likely because it is easier to estimate."],
           "elevation": ["- "]
           }
 
+        this.icons = {
+          "trigger":"https://img.icons8.com/material/48/000000/ski-simulator.png",
+          "aspect":"https://img.icons8.com/ios-filled/50/000000/wind-rose.png",
+          "width":"https://img.icons8.com/ios/50/000000/tape-measure-sewing.png",
+          "elevation":"https://img.icons8.com/ios-filled/50/000000/ski-resort.png"
+        }
 
         this.points = {
           "trigger":[
@@ -64,6 +70,7 @@ class story{
     draw(){
       let that = this;
       // update title
+      d3.select("#catIcon").attr("src", this.icons[this.category]);
       d3.select("#attrTitle").text(this.category);
       // update description
       let ul = d3.select("#attrDescription").selectAll('li').data(this.descriptions[this.category]);

@@ -436,7 +436,6 @@ class AreaChart{
         let sorted_labels = Object.keys(count_dict).sort(function(a, b) {
           return count_dict[b] - count_dict[a];
         })
-        console.log(sorted_labels)
         return sorted_labels;
     }
 
