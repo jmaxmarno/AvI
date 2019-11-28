@@ -27,6 +27,9 @@ text {
   rx:5;
   ry:10;
 }
+.selection {
+  fill: none;
+}
 
 
 /* dropdown menu stuff */

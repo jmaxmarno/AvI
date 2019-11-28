@@ -118,6 +118,8 @@ class yeargrid {
 
     let grid_g = d3.select("#yeargrid")
     .attr('id', 'gridsvg')
+    // .attr('width', that.width+that.margin.left+that.margin.right)
+    // .attr('height', that.height+that.margin.top+that.margin.bottom)
     .attr('width', that.width+that.margin.left+that.margin.right)
     .attr('height', that.height+that.margin.top+that.margin.bottom)
     .append('g')
@@ -223,6 +225,11 @@ class yeargrid {
 
           let yyr = yy.map(that.yscale)
           let xxr = xx.map(that.xscale)
+          // if (xxr[0] >= xxr[1]){
+          //   xxr[0] = that.xscale.round(x0)
+          //   xxr[1] = that.xscale.step(xxr[0])
+          // }
+
           d3.select(this).call(brush.move, [[xxr[0], yyr[0]], [xxr[1], yyr[1]]])
 
           // style brushed rects
@@ -248,6 +255,7 @@ class yeargrid {
     let brush  = d3.brush()
     .on('brush', highlightBrushed)
     .on('end', endbrush)
+
 
     that.brush = brush;
     // add brush to view
