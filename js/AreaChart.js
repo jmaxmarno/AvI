@@ -470,6 +470,9 @@ class AreaChart{
         drop.on('change', function(d, i) {
             let value = this.options[this.selectedIndex].value;
             that.updateAttribute(value);
+            // unselect buttons
+            let s = d3.select('#story').selectAll('.button').classed('is-info', false)
+            d3.select('#story').select('#context').text('')
         });
     }
 

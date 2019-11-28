@@ -17,7 +17,7 @@ class story{
             " Thus, avalanches triggered by or near observers are more likely to be reported and these observations are not a representative sample of all avalanches in Utah."],
           "aspect": ["- Aspect is the direction the slope faces with respect to the sun.","-  North and East facing slopes recieve much less sunlight resulting in a colder snowpack with fragile weak-layers. These slopes alse tend to get more human traffic as the snow is deeper and better.", "- For these reasons the majority of avalanches occur on North and East facing slopes, this can be seen in the star plot."],
           "width": ["- Width refers to the distance across the hill of the slide.", "- Observations have recorded widths ranging from five to five thousand feet across.", "- The majority of slides reported are less than 200 feet across.", "- Avalanche size is typically measured by width, depth, and verticle distance. Width is noted in avalanche observations more consitently than depth and verticle distance, most likely because it is easier to estimate."],
-          "elevation": ["- "]
+          "elevation": ["- Avalanche danger can change dramatically with elevation. This is evidenced by the fact that avalanche danger ratings will vary across elevation bands even for the same day. The elevation bands used here are the same that are used by many avalanche forcasting organizations including the UAC."]
           }
 
         this.icons = {
@@ -47,7 +47,7 @@ class story{
               ,{"year":'2019',"months":[11]}],
               "text":"Early season can be dangerous. Note the increase in the proportion of skier-triggered reports for all Novembers. However, the timeline seems to show a trend indicating an increase in natural-triggered slides reported, and decrease in skier-triggered slides reported. (Compare the enlarged green blocks moving left to right)"
             },
-            {"display":"2013/2014 Season",
+            {"display":"Winter 2013/2014",
               "time":[{"year":"2013", "months":[8,9, 10, 11, 12]}, {"year":"2014", "months":[1,2,3,4,5,6,7]}],
               "text": "This season we see a deviation from the running norm - an increase in the proportion of naturally triggered avalanches reported."}
           ],
@@ -62,9 +62,19 @@ class story{
             {"display":"Winter 14/15","time":[{"year":"2014","months":[8,9,10,11,12]},{"year":"2015","months":[1,2,3,4,4,5,6,7]}],"text":"In the winter season of 2014-2015 there appears to be a trend in the proportion of observed widths. In the bar chart we can see that as time goes on there are the width of the reported slides decreases. This may be because the 2014-2015 season was warmer than most, resulting in less snow accumulation and smaller slides."}
           ],
           "elevation":[
-            {"display":"Feb. 2011","time":[{"year":'2011',"months":[2]}],"text":"Many skiers."},
-            {"display":"February","time":[{"year":'2011',"months":[2]},{"year":2011,"months":[2]}],"text":"Many skiers."},
-            {"display":"2011","time":[{"year":'2011',"months":[1,2,3,4,5,6,7,8,9,10,11,12]}],"text":"Many skiers."}
+            {"display":"October 2019","time":[{"year":"2019","months":[10]}],"text":"No surprise here - all reported avalanches were above 9,500 feet for October 2019."},
+            {"display":"All Januarys","time":[{"year":"2010","months":[1]}
+            ,{"year":"2011","months":[1]}
+            ,{"year":"2012","months":[1]}
+            ,{"year":"2013","months":[1]}
+            ,{"year":"2014","months":[1]}
+            ,{"year":"2015","months":[1]}
+            ,{"year":"2016","months":[1]}
+            ,{"year":"2017","months":[1]}
+            ,{"year":"2018","months":[1]}
+            ,{"year":"2019","months":[1]}]
+            ,"text":"January is one of the only times of year when we see a relative increase in lower elevation avalanches. "},
+            {"display":"Winter 2014/2015","time":[{"year":'2014',"months":[8,9,10,11,12]}, {"year":"2015", "months":[1,2,3,4,5,6,7]}],"text":"This year saw our shallowest snowpack on record. During this season, Alta Guard received a measely 267.5 inches.  As one might expect there were more avalanches reported above 9,500 feet than normal (51% to 63%). Probably because there wasn't anything capable of sliding down low!"}
           ],
         }
 
