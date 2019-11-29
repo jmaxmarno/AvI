@@ -49,8 +49,13 @@ class yeargrid {
         }
       }
     })
+    selrects = that.showSummer===true?selrects: selrects.filter(function(b){
+      console.log('show summer', that.showSummer);
+      return b.count>0
+    })
     selrects.classed('brushed', true)
-    this.updateTime(daterange)
+    that.brushed2dates()
+    // that.updateTime(daterange)
   }
 
   invertscale(scale){
@@ -77,8 +82,8 @@ class yeargrid {
     rrects.filter(function (){
       // TODO: update brush to snap 'out' to selected rects
       let r = d3.select(this)
-       let xx = +r.attr("x")+(that.xscale.bandwidth()*0.5);
-       let yy = +r.attr("y")+(that.yscale.bandwidth()*0.5);
+       let xx = +r.attr("x")+(that.xscale.bandwidth()*0.6);
+       let yy = +r.attr("y")+(that.yscale.bandwidth()*0.6);
        let cc = r.data()[0].count
 
        if (that.showSummer===true){
@@ -105,6 +110,40 @@ class yeargrid {
     let y0 = brushcoords[0][1];
     let y1 = brushcoords[1][1];
     return x0 <= xx && xx<= x1 && y0<=yy && yy <= y1;
+  }
+
+  brushed2dates(){
+    let that = this
+    let grid_g = d3.select('#gridsvg')
+    // summer months, or not
+    let brushedrects;
+    if (that.showSummer==true){
+      brushedrects = grid_g.selectAll('.brushed').data()
+    }else{
+      brushedrects = grid_g.selectAll('.brushed').filter(function(b){
+        // console.log('brushed rect', b, 'bcount', b.count)
+        return b.count>0
+      }).data()
+    }
+  // parse unique year/month combos
+    let years = []
+    for (let key in brushedrects){
+      // console.log(brushedrects[key]['year'])
+      if (years.includes(brushedrects[key]['year'])){
+      }else{
+        years.push(brushedrects[key]['year'])
+      }
+    }
+    let datedata = years.map(function(y){
+      let monthss = brushedrects.filter(function(d){
+        return d.year == y
+      }).map(m=>m.nmonth)
+      // get the index of the months from the months array defined initially
+      return {year: y, months: monthss.map(mm=>that.normmonths.indexOf(mm)+1)}
+    })
+    that.updateTime(datedata)
+    // console.log('date data', datedata);
+    return brushedrects
   }
 
   drawgrid(){

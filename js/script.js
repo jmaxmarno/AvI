@@ -26,7 +26,6 @@ d3.json('data/avalanches.json').then( data => {
         storyy.update(activeAtrribute, activeTime);
     }
     function updateTime(activeTime){
-        console.log(activeTime)
         that.activeTime = activeTime;
         areaChart.setTime(activeTime);
         spider.update(activeAtrribute, activeTime);

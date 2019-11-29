@@ -217,7 +217,6 @@ class AreaChart{
         let plot = d3.select("#areaPlot")
         //define series
         let areaData = this.getAreaData();
-        areaData = areaData.filter(function(d){return d.count != 0;});
         let columns = Object.keys(areaData[0]);
         let series = d3.stack().keys(columns.slice(3))(areaData); // don't include date or dimensions
         // bar scales
@@ -307,9 +306,16 @@ class AreaChart{
         let activemonthscount = 0;
         let activeyears = [];
         // Date range stuff
-        if(this.activeTime.length){
+        if(that.activeTime.length){
           activeyears = this.activeTime.map(d=>d.year)
-          activemonthscount = this.activeTime.map(d=>d.months.length).reduce((a,b)=> a+b, 0)
+          let wSummeractivemonths = this.activeTime.map(d=>d.months.length).reduce((a,b)=> a+b, 0)
+          let noSummeractivemonths = that.activeTime.filter(function(year){
+            for(let month in year.months){
+              let count = that.data[year.year][year.months[month]]['total_count']
+              return count >0
+            }
+          }).map(d=>d.months.length).reduce((a,b)=> a+b, 0)
+          activemonthscount = that.showSummer === true?wSummeractivemonths:noSummeractivemonths;
         }
         for (let year in this.data) {
             for (let month in this.data[year]) {
@@ -393,6 +399,7 @@ class AreaChart{
         let selwidth = width*newsel/selection
         let outwidth = width*newout/(total-selection)
         // console.log('widths', selection, " / ", total, "__width", width, "__sel, out", selwidth, outwidth)
+
         return [selwidth, outwidth]
       }
       catch{
@@ -484,9 +491,10 @@ class AreaChart{
         function update(){
             if(d3.select("#summerCheckBox").property("checked")){
                 that.showSummer = true;
+                that.updatesummer(that.showSummer)
                 that.updateHistogram();
                 that.updateAreaChart();
-                that.updatesummer(that.showSummer)
+
             }
             else{
                 that.showSummer = false;

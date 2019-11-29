@@ -110,12 +110,12 @@ class story{
           d3.selectAll(".button").classed("is-info", false);
           d3.select(this).classed("is-info", true);
           d3.select("#context").text(d.text);
-          console.log("2")
+          // console.log("2")
         })
       d3.select("#yearbox").on("click", function(d){
         d3.selectAll(".button").classed("is-info", false);
         d3.select("#context").text("");
-        console.log(this)
+        // console.log(this)
       });
     }
 
