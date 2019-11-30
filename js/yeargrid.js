@@ -82,8 +82,8 @@ class yeargrid {
     rrects.filter(function (){
       // TODO: update brush to snap 'out' to selected rects
       let r = d3.select(this)
-       let xx = +r.attr("x")+(that.xscale.bandwidth()*0.6);
-       let yy = +r.attr("y")+(that.yscale.bandwidth()*0.6);
+       let xx = +r.attr("x")+(that.xscale.bandwidth()*.6);
+       let yy = +r.attr("y")+(that.yscale.bandwidth()*.6);
        let cc = r.data()[0].count
 
        if (that.showSummer===true){
@@ -247,6 +247,7 @@ class yeargrid {
 
   // highlight rects on brush
   function highlightBrushed() {
+    // console.log('Jul, Aug', [that.xscale('Jul'), that.xscale('Aug')].map(that.invertscale(that.xscale)));
     gridrects.classed('brushed', false);
       if (d3.event.selection != null) {
         if(d3.event.sourceEvent.type === 'brush') return;
@@ -255,8 +256,9 @@ class yeargrid {
           var brush_coords = d3.brushSelection(this);
 
           const b1 = d3.event.selection
-          let x0 = b1[0][0];
-          let x1 = b1[1][0];
+          let x0 = b1[0][0]
+          let x1 = b1[1][0]
+          // +(that.xscale.bandwidth()*.5);
           let y0 = b1[0][1];
           let y1 = b1[1][1];
           let xx = [x0, x1].map(that.invertscale(that.xscale))
@@ -264,11 +266,7 @@ class yeargrid {
 
           let yyr = yy.map(that.yscale)
           let xxr = xx.map(that.xscale)
-          // if (xxr[0] >= xxr[1]){
-          //   xxr[0] = that.xscale.round(x0)
-          //   xxr[1] = that.xscale.step(xxr[0])
-          // }
-
+          
           d3.select(this).call(brush.move, [[xxr[0], yyr[0]], [xxr[1], yyr[1]]])
 
           // style brushed rects
@@ -277,8 +275,6 @@ class yeargrid {
             let r = d3.select(this)
              let xx = +r.attr("x")+(that.xscale.bandwidth());
              let yy = +r.attr("y")+(that.yscale.bandwidth());
-             // let xx = +r.attr("x")+(that.xscale.bandwidth()*0.5);
-             // let yy = +r.attr("y")+(that.yscale.bandwidth()*0.5);
              let cc = r.data()[0].count
 
              if (that.showSummer===true){
@@ -292,17 +288,20 @@ class yeargrid {
         }
     // initialize brush, on events
     let brush  = d3.brush()
+    // .extent([100,100],[200,200])
     .on('brush', highlightBrushed)
     .on('end', endbrush)
-
+    .extent([[1,1], [that.xscale.bandwidth()*13, that.yscale.bandwidth()*21]])
 
     that.brush = brush;
     // add brush to view
     grid_g.append("g")
+    // .attr('transform', "translate(" + that.xscale.bandwidth() + "," + that.yscale.bandwidth() + ")")
     .attr('id', 'brushg')
     .attr('width', that.width)
     .attr('height', that.height)
-    .call(brush);
+    .call(brush)
+
 
    // draw drawLegend
    let legendsvg = d3.select('#yearmonthlegend').append('svg')

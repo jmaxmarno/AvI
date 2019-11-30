@@ -175,7 +175,7 @@ class spiderchart{
       .data(function(d, i){return d})
       .enter().append('circle')
       .attr('class', 'starintercept')
-      .attr('r', '3')
+      .attr('r', '5')
       .attr('cx', function(d, i){return radiusScale(d.prop)*Math.cos(axesSlice*i - Math.PI/2);})
       .attr('cy', function(d, i){return radiusScale(d.prop)*Math.sin(axesSlice*i - Math.PI/2);})
       .style('fill', function(d, i){

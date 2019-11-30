@@ -317,6 +317,8 @@ class AreaChart{
           }).map(d=>d.months.length).reduce((a,b)=> a+b, 0)
           activemonthscount = that.showSummer === true?wSummeractivemonths:noSummeractivemonths;
         }
+
+        console.log('time', this.activeTime);
         for (let year in this.data) {
             for (let month in this.data[year]) {
                 let date = month +'/'+ year;
