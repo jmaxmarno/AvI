@@ -43,6 +43,8 @@ Team members:
   </tr>
 </table>
 
+## Project Overview
+AvI is an interactive visualization of reported avalanche observations and slide characteristics in Utah over the past ten years. The data is provided by the Utah Avalanche Center. AvI provides a way to explore the proportions of characterisitcs such as trigger type, slope aspect, width, and elevation reported while keeping the average distribution in mind. It allows you to select the characteritic of interest as well as a time frame of interest by brushing the heat map time grid. In addition, it provides an explanation of each characterisitc as well as some preset points of interest. More information is provided by hovering over the charts. 
 
 ## Code Overview
 
