@@ -28,6 +28,7 @@ class AreaChart{
         this.updateAreaChart();
     }
     setTime(activeTime){
+      console.log('SET TIME');
         this.activeTime = activeTime;
         this.updateHistogram();
         this.updateAreaChart();
@@ -108,6 +109,7 @@ class AreaChart{
     updateHistogram(){
         let that = this;
         let data = this.getAreaData();
+        console.log('hist area data', data);
         //scales
         let xHistScale = d3.scaleLinear()
             .domain([0, data.length])
@@ -132,7 +134,7 @@ class AreaChart{
                 .duration(500)
                 .style("opacity", 1);
         // bars
-        data = data.filter(function(d){return d.count != 0;});
+        //data = data.filter(function(d){return d.count != 0;});
         let barGroups = d3.select("#histPlot").selectAll("g").data(data);
         let barEnter = barGroups.enter().append("g");
         barEnter.append("line");
@@ -217,6 +219,7 @@ class AreaChart{
         let plot = d3.select("#areaPlot")
         //define series
         let areaData = this.getAreaData();
+        console.log('area areadata', areaData);
         let columns = Object.keys(areaData[0]);
         let series = d3.stack().keys(columns.slice(3))(areaData); // don't include date or dimensions
         // bar scales
@@ -309,13 +312,35 @@ class AreaChart{
         if(that.activeTime.length){
           activeyears = this.activeTime.map(d=>d.year)
           let wSummeractivemonths = this.activeTime.map(d=>d.months.length).reduce((a,b)=> a+b, 0)
-          let noSummeractivemonths = that.activeTime.filter(function(year){
-            for(let month in year.months){
-              let count = that.data[year.year][year.months[month]]['total_count']
-              return count >0
-            }
-          }).map(d=>d.months.length).reduce((a,b)=> a+b, 0)
-          activemonthscount = that.showSummer === true?wSummeractivemonths:noSummeractivemonths;
+          let noSummeractivemonths = that.activeTime.map(function(year){
+            console.log('year', year.year);
+            console.log('months', year.months);
+            let mm = year.months.filter(function(m){
+              console.log('m', m);
+              let count = that.data[year.year][m]['total_count']
+              // [month]["total_count"];
+              console.log('count', count);
+              if (count > 0){
+                return m
+              }
+            })
+            year.months = mm
+            return year
+            }).map(d=>d.months.length).reduce((a,b)=> a+b, 0)
+
+
+          // }).map(d=>d.months.length).reduce((a,b)=> a+b, 0)
+          if (that.showSummer === true){
+            console.log('show summer true');
+            console.log('len active', wSummeractivemonths);
+            activemonthscount = noSummeractivemonths
+            // activemonthscount = wSummeractivemonths
+          }else{
+            console.log('show summer false');
+            console.log('len active', noSummeractivemonths);
+            activemonthscount = noSummeractivemonths
+          }
+          // activemonthscount = that.showSummer === true?wSummeractivemonths:noSummeractivemonths;
         }
 
         console.log('time', this.activeTime);
@@ -400,6 +425,7 @@ class AreaChart{
         let newout = 1-newsel
         let selwidth = width*newsel/selection
         let outwidth = width*newout/(total-selection)
+        console.log('total, selection, width', total, selection, width);
         // console.log('widths', selection, " / ", total, "__width", width, "__sel, out", selwidth, outwidth)
 
         return [selwidth, outwidth]
