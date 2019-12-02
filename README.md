@@ -3,7 +3,7 @@
 # AvI - Avalanche Investigator
 ## Exploring Characteristics Utah's Reported Avalanches Over Time
 
-Project Site: 
+Project Site: [https://jmaxmarno.github.io/AvI/](https://jmaxmarno.github.io/AvI/)
 
 Repository: [https://github.com/jmaxmarno/AvI](https://github.com/jmaxmarno/AvI)
 
